@@ -6,8 +6,8 @@ import unittest
 
 from ops import testing
 
-from tests.unit.charms.mutual_tls_interface.v0.dummy_provider_charm.src.charm import (
-    DummyMutualTLSProviderCharm,
+from tests.unit.charms.mutual_tls_interface.v0.sample_provider_charm.src.charm import (
+    SampleMutualTLSProviderCharm,
 )
 
 BASE_LIB_DIR = "lib.charms.mutual_tls_interface.v0.mutual_tls"
@@ -16,7 +16,7 @@ BASE_LIB_DIR = "lib.charms.mutual_tls_interface.v0.mutual_tls"
 class TestMutualTLSProvides(unittest.TestCase):
     def setUp(self):
         self.unit_name = "mutual-tls-interface-provider/0"
-        self.harness = testing.Harness(DummyMutualTLSProviderCharm)
+        self.harness = testing.Harness(SampleMutualTLSProviderCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 

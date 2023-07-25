@@ -7,18 +7,18 @@ from unittest.mock import patch
 
 from ops import testing
 
-from tests.unit.charms.mutual_tls_interface.v0.dummy_requirer_charm.src.charm import (
-    DummyMutualTLSRequirerCharm,
+from tests.unit.charms.mutual_tls_interface.v0.sample_requirer_charm.src.charm import (
+    SampleMutualTLSRequirerCharm,
 )
 
 BASE_LIB_DIR = "lib.charms.mutual_tls_interface.v0.mutual_tls"
-BASE_CHARM_DIR = "tests.unit.charms.mutual_tls_interface.v0.dummy_requirer_charm.src.charm.DummyMutualTLSRequirerCharm"  # noqa: E501
+BASE_CHARM_DIR = "tests.unit.charms.mutual_tls_interface.v0.sample_requirer_charm.src.charm.SampleMutualTLSRequirerCharm"  # noqa: E501
 
 
 class TestMutualTLSRequires(unittest.TestCase):
     def setUp(self):
         self.unit_name = "mutual-tls-interface-requirer/0"
-        self.harness = testing.Harness(DummyMutualTLSRequirerCharm)
+        self.harness = testing.Harness(SampleMutualTLSRequirerCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 

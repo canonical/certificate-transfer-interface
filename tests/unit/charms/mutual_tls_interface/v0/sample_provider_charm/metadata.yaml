@@ -3,8 +3,8 @@
 
 name: mutual-tls-interface-provider
 
-description: Dummy mutual-tls-interface-provider.
-summary: Dummy mutual-tls-interface-provider.
+description: Sample mutual-tls-interface-provider.
+summary: Sample mutual-tls-interface-provider.
 
 provides:
   certificates:

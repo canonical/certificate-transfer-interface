@@ -23,7 +23,7 @@ from ops.main import main
 from lib.charms.mutual_tls_interface.v0.mutual_tls import MutualTLSProvides
 
 
-class DummyMutualTLSProviderCharm(CharmBase):
+class SampleMutualTLSProviderCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.mutual_tls = MutualTLSProvides(self, "certificates")
@@ -39,7 +39,7 @@ class DummyMutualTLSProviderCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(DummyMutualTLSProviderCharm)
+    main(SampleMutualTLSProviderCharm)
 ```
 
 ### Requirer charm
@@ -57,7 +57,7 @@ from lib.charms.mutual_tls_interface.v0.mutual_tls import (
 )
 
 
-class DummyMutualTLSRequirerCharm(CharmBase):
+class SampleMutualTLSRequirerCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.mutual_tls = MutualTLSRequires(self, "certificates")
@@ -72,7 +72,7 @@ class DummyMutualTLSRequirerCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(DummyMutualTLSRequirerCharm)
+    main(SampleMutualTLSRequirerCharm)
 ```
 
 You can relate both charms by running:

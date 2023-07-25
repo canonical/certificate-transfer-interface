@@ -3,8 +3,8 @@
 
 name: mutual-tls-interface-requirer
 
-description: Dummy mutual-tls-interface-requirer.
-summary: Dummy mutual-tls-interface-requirer.
+description: Sample mutual-tls-interface-requirer.
+summary: Sample mutual-tls-interface-requirer.
 
 requires:
   certificates:
