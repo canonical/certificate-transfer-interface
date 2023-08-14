@@ -8,4 +8,4 @@ summary: Dummy certificate-exchange-interface-requirer.
 
 requires:
   certificates:
-    interface: certificate-exchange
+    interface: certificate_exchange
