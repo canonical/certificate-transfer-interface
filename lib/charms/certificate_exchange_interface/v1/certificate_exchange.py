@@ -10,7 +10,7 @@ ertificate-exchange interface.
 From a charm directory, fetch the library using `charmcraft`:
 
 ```shell
-charmcraft fetch-lib charms.certificate_exchange_interface.v0.certificate_exchange
+charmcraft fetch-lib charms.certificate_exchange_interface.v1.certificate_exchange
 ```
 
 ### Provider charm
@@ -21,7 +21,7 @@ Example:
 from ops.charm import CharmBase, RelationJoinedEvent
 from ops.main import main
 
-from lib.charms.certificate_exchange_interface.v0.certificate_exchange import CertificateExchangeProvides  # noqa: E501 W505
+from lib.charms.certificate_exchange_interface.v1.certificate_exchange import CertificateExchangeProvides  # noqa: E501 W505
 
 
 class DummyCertificateExchangeProviderCharm(CharmBase):
@@ -52,7 +52,7 @@ Example:
 from ops.charm import CharmBase
 from ops.main import main
 
-from lib.charms.certificate_exchange_interface.v0.certificate_exchange import (
+from lib.charms.certificate_exchange_interface.v1.certificate_exchange import (
     CertificateAvailableEvent,
     CertificateExchangeRequires,
 )
@@ -97,11 +97,11 @@ from ops.framework import EventBase, EventSource, Handle, Object
 LIBID = "b24dab3c7b464669a7710806defe34d4"
 
 # Increment this major API version when introducing breaking changes
-LIBAPI = 0
+LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 0
 
 PYDEPS = ["jsonschema"]
 

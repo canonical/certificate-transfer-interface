@@ -4,7 +4,7 @@
 from ops.charm import CharmBase, RelationJoinedEvent
 from ops.main import main
 
-from lib.charms.certificate_exchange_interface.v0.certificate_exchange import (
+from lib.charms.certificate_exchange_interface.v1.certificate_exchange import (
     CertificateExchangeProvides,
 )
 

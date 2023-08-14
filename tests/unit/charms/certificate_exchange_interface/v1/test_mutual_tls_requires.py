@@ -7,12 +7,12 @@ from unittest.mock import patch
 
 from ops import testing
 
-from tests.unit.charms.certificate_exchange_interface.v0.dummy_requirer_charm.src.charm import (
+from tests.unit.charms.certificate_exchange_interface.v1.dummy_requirer_charm.src.charm import (
     DummyCertificateExchangeRequirerCharm,
 )
 
-BASE_LIB_DIR = "lib.charms.certificate_exchange_interface.v0.certificate_exchange"
-BASE_CHARM_DIR = "tests.unit.charms.certificate_exchange_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateExchangeRequirerCharm"  # noqa: E501
+BASE_LIB_DIR = "lib.charms.certificate_exchange_interface.v1.certificate_exchange"
+BASE_CHARM_DIR = "tests.unit.charms.certificate_exchange_interface.v1.dummy_requirer_charm.src.charm.DummyCertificateExchangeRequirerCharm"  # noqa: E501
 
 
 class TestCertificateExchangeRequires(unittest.TestCase):

@@ -6,11 +6,11 @@ import unittest
 
 from ops import testing
 
-from tests.unit.charms.certificate_exchange_interface.v0.dummy_provider_charm.src.charm import (
+from tests.unit.charms.certificate_exchange_interface.v1.dummy_provider_charm.src.charm import (
     DummyCertificateExchangeProviderCharm,
 )
 
-BASE_LIB_DIR = "lib.charms.certificate_exchange_interface.v0.certificate_exchange"
+BASE_LIB_DIR = "lib.charms.certificate_exchange_interface.v1.certificate_exchange"
 
 
 class TestCertificateExchangeProvides(unittest.TestCase):
