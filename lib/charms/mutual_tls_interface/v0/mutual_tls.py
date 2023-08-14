@@ -1,7 +1,7 @@
 # Copyright 2023 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Library for the cert-transfer relation.
+"""Library for the certificate-exchange relation.
 
 This library contains the Requires and Provides classes for handling the cert-transfer interface.
 
