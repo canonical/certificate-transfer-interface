@@ -15,14 +15,14 @@ BASE_LIB_DIR = "lib.charms.mutual_tls_interface.v0.mutual_tls"
 
 class TestMutualTLSProvides(unittest.TestCase):
     def setUp(self):
-        self.unit_name = "mutual-tls-interface-provider/0"
+        self.unit_name = "cert-transfer-interface-provider/0"
         self.harness = testing.Harness(DummyMutualTLSProviderCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
     def create_mutual_tls_relation(self) -> int:
         relation_name = "certificates"
-        remote_app_name = "mutual-tls-requirer"
+        remote_app_name = "cert-transfer-requirer"
         relation_id = self.harness.add_relation(
             relation_name=relation_name,
             remote_app=remote_app_name,
@@ -43,7 +43,7 @@ class TestMutualTLSProvides(unittest.TestCase):
         )
 
         relation_data = self.harness.get_relation_data(
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
             relation_id=relation_id,
         )
         self.assertEqual(relation_data["certificate"], certificate)
@@ -62,7 +62,7 @@ class TestMutualTLSProvides(unittest.TestCase):
         self.harness.charm.mutual_tls.set_certificate(certificate=certificate, ca=ca, chain=chain)
 
         relation_data = self.harness.get_relation_data(
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
             relation_id=relation_id,
         )
         self.assertEqual(relation_data["certificate"], certificate)
@@ -91,13 +91,13 @@ class TestMutualTLSProvides(unittest.TestCase):
         self.harness.update_relation_data(
             relation_id=relation_id,
             key_values=relation_data,
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
         )
 
         self.harness.charm.mutual_tls.remove_certificate(relation_id=relation_id)
 
         relation_data = self.harness.get_relation_data(
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
             relation_id=relation_id,
         )
         assert "certificate" not in relation_data
@@ -114,13 +114,13 @@ class TestMutualTLSProvides(unittest.TestCase):
         self.harness.update_relation_data(
             relation_id=relation_id,
             key_values=relation_data,
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
         )
 
         self.harness.charm.mutual_tls.remove_certificate(relation_id=relation_id)
 
         relation_data = self.harness.get_relation_data(
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
             relation_id=relation_id,
         )
         assert "certificate" not in relation_data
@@ -137,13 +137,13 @@ class TestMutualTLSProvides(unittest.TestCase):
         self.harness.update_relation_data(
             relation_id=relation_id,
             key_values=relation_data,
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
         )
 
         self.harness.charm.mutual_tls.remove_certificate()
 
         relation_data = self.harness.get_relation_data(
-            app_or_unit="mutual-tls-interface-provider/0",
+            app_or_unit="cert-transfer-interface-provider/0",
             relation_id=relation_id,
         )
         assert "certificate" not in relation_data

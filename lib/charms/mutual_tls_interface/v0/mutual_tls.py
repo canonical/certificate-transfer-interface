@@ -1,9 +1,9 @@
 # Copyright 2023 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Library for the mutual-tls relation.
+"""Library for the cert-transfer relation.
 
-This library contains the Requires and Provides classes for handling the mutual-tls interface.
+This library contains the Requires and Provides classes for handling the cert-transfer interface.
 
 ## Getting Started
 From a charm directory, fetch the library using `charmcraft`:
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 You can relate both charms by running:
 
 ```bash
-juju relate <mutual-tls provider charm> <mutual-tls requirer charm>
+juju relate <cert-transfer provider charm> <cert-transfer requirer charm>
 ```
 
 """
