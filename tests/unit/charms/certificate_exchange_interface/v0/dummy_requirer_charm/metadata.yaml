@@ -1,0 +1,11 @@
+# Copyright 2023 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: certificate-exchange-interface-requirer
+
+description: Dummy certificate-exchange-interface-requirer.
+summary: Dummy certificate-exchange-interface-requirer.
+
+requires:
+  certificates:
+    interface: certificate-exchange

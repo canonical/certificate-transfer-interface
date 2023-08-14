@@ -7,24 +7,24 @@ from unittest.mock import patch
 
 from ops import testing
 
-from tests.unit.charms.mutual_tls_interface.v0.dummy_requirer_charm.src.charm import (
-    DummyMutualTLSRequirerCharm,
+from tests.unit.charms.certificate_exchange_interface.v0.dummy_requirer_charm.src.charm import (
+    DummyCertificateExchangeRequirerCharm,
 )
 
-BASE_LIB_DIR = "lib.charms.mutual_tls_interface.v0.mutual_tls"
-BASE_CHARM_DIR = "tests.unit.charms.mutual_tls_interface.v0.dummy_requirer_charm.src.charm.DummyMutualTLSRequirerCharm"  # noqa: E501
+BASE_LIB_DIR = "lib.charms.certificate_exchange_interface.v0.certificate_exchange"
+BASE_CHARM_DIR = "tests.unit.charms.certificate_exchange_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateExchangeRequirerCharm"  # noqa: E501
 
 
-class TestMutualTLSRequires(unittest.TestCase):
+class TestCertificateExchangeRequires(unittest.TestCase):
     def setUp(self):
-        self.unit_name = "mutual-tls-interface-requirer/0"
-        self.harness = testing.Harness(DummyMutualTLSRequirerCharm)
+        self.unit_name = "certificate-exchange-interface-requirer/0"
+        self.harness = testing.Harness(DummyCertificateExchangeRequirerCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
-    def create_mutual_tls_relation(self) -> int:
+    def create_certificate_exchange_relation(self) -> int:
         relation_name = "certificates"
-        remote_app_name = "mutual-tls-provider"
+        remote_app_name = "certificate-exchange-provider"
         relation_id = self.harness.add_relation(
             relation_name=relation_name,
             remote_app=remote_app_name,
@@ -35,8 +35,8 @@ class TestMutualTLSRequires(unittest.TestCase):
     def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
         self, patch_certificate_available
     ):
-        remote_unit_name = "mutual-tls-provider/0"
-        relation_id = self.create_mutual_tls_relation()
+        remote_unit_name = "certificate-exchange-provider/0"
+        relation_id = self.create_certificate_exchange_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         certificate = "whatever certificate"
         ca = "whatever CA certificate"
@@ -61,8 +61,8 @@ class TestMutualTLSRequires(unittest.TestCase):
     def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
         self, patch_certificate_available
     ):
-        remote_unit_name = "mutual-tls-provider/0"
-        relation_id = self.create_mutual_tls_relation()
+        remote_unit_name = "certificate-exchange-provider/0"
+        relation_id = self.create_certificate_exchange_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         certificate = "whatever certificate"
         key_values = {
@@ -81,8 +81,8 @@ class TestMutualTLSRequires(unittest.TestCase):
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_warning_log_is_emitted(  # noqa: E501
         self,
     ):
-        remote_unit_name = "mutual-tls-provider/0"
-        relation_id = self.create_mutual_tls_relation()
+        remote_unit_name = "certificate-exchange-provider/0"
+        relation_id = self.create_certificate_exchange_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         key_values = {
             "banana": "whatever banana content",
@@ -99,11 +99,13 @@ class TestMutualTLSRequires(unittest.TestCase):
     def test_given_provider_uses_application_relation_data_when_relation_changed_then_log_is_emitted(  # noqa: E501
         self,
     ):
-        relation_id = self.create_mutual_tls_relation()
+        relation_id = self.create_certificate_exchange_relation()
         key_values = {"certificate": "whatever cert"}
         with self.assertLogs(BASE_LIB_DIR, level="INFO") as log:
             self.harness.update_relation_data(
-                relation_id=relation_id, app_or_unit="mutual-tls-provider", key_values=key_values
+                relation_id=relation_id,
+                app_or_unit="certificate-exchange-provider",
+                key_values=key_values,
             )
 
         assert "No remote unit in relation" in log.output[0]

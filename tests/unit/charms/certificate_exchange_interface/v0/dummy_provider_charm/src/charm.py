@@ -4,13 +4,15 @@
 from ops.charm import CharmBase, RelationJoinedEvent
 from ops.main import main
 
-from lib.charms.mutual_tls_interface.v0.mutual_tls import MutualTLSProvides
+from lib.charms.certificate_exchange_interface.v0.certificate_exchange import (
+    CertificateExchangeProvides,
+)
 
 
-class DummyMutualTLSProviderCharm(CharmBase):
+class DummyCertificateExchangeProviderCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.mutual_tls = MutualTLSProvides(self, "certificates")
+        self.certificate_exchange = CertificateExchangeProvides(self, "certificates")
         self.framework.observe(
             self.on.certificates_relation_joined, self._on_certificates_relation_joined
         )
@@ -19,8 +21,8 @@ class DummyMutualTLSProviderCharm(CharmBase):
         certificate = "my certificate"
         ca = "my CA certificate"
         chain = ["certificate 1", "certificate 2"]
-        self.mutual_tls.set_certificate(certificate=certificate, ca=ca, chain=chain)
+        self.certificate_exchange.set_certificate(certificate=certificate, ca=ca, chain=chain)
 
 
 if __name__ == "__main__":
-    main(DummyMutualTLSProviderCharm)
+    main(DummyCertificateExchangeProviderCharm)

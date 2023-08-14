@@ -1,6 +1,6 @@
-name: mutual-tls-interface
+name: certificate-exchange-interface
 
-display-name: Mutual TLS Interface
+display-name: Certificate Exchange Interface
 
 summary: Placeholder charm
 
