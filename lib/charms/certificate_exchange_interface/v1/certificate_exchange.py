@@ -1,15 +1,16 @@
 # Copyright 2023 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Library for the mutual-tls relation.
+"""Library for the certificate_exchange relation.
 
-This library contains the Requires and Provides classes for handling the mutual-tls interface.
+This library contains the Requires and Provides classes for handling the
+ertificate-exchange interface.
 
 ## Getting Started
 From a charm directory, fetch the library using `charmcraft`:
 
 ```shell
-charmcraft fetch-lib charms.mutual_tls_interface.v0.mutual_tls
+charmcraft fetch-lib charms.certificate_exchange_interface.v1.certificate_exchange
 ```
 
 ### Provider charm
@@ -20,13 +21,13 @@ Example:
 from ops.charm import CharmBase, RelationJoinedEvent
 from ops.main import main
 
-from lib.charms.mutual_tls_interface.v0.mutual_tls import MutualTLSProvides
+from lib.charms.certificate_exchange_interface.v1.certificate_exchange import CertificateExchangeProvides  # noqa: E501 W505
 
 
-class DummyMutualTLSProviderCharm(CharmBase):
+class DummyCertificateExchangeProviderCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.mutual_tls = MutualTLSProvides(self, "certificates")
+        self.certificate_exchange = CertificateExchangeProvides(self, "certificates")
         self.framework.observe(
             self.on.certificates_relation_joined, self._on_certificates_relation_joined
         )
@@ -35,11 +36,11 @@ class DummyMutualTLSProviderCharm(CharmBase):
         certificate = "my certificate"
         ca = "my CA certificate"
         chain = ["certificate 1", "certificate 2"]
-        self.mutual_tls.set_certificate(certificate=certificate, ca=ca, chain=chain)
+        self.certificate_exchange.set_certificate(certificate=certificate, ca=ca, chain=chain)
 
 
 if __name__ == "__main__":
-    main(DummyMutualTLSProviderCharm)
+    main(DummyCertificateExchangeProviderCharm)
 ```
 
 ### Requirer charm
@@ -51,18 +52,18 @@ Example:
 from ops.charm import CharmBase
 from ops.main import main
 
-from lib.charms.mutual_tls_interface.v0.mutual_tls import (
+from lib.charms.certificate_exchange_interface.v1.certificate_exchange import (
     CertificateAvailableEvent,
-    MutualTLSRequires,
+    CertificateExchangeRequires,
 )
 
 
-class DummyMutualTLSRequirerCharm(CharmBase):
+class DummyCertificateExchangeRequirerCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.mutual_tls = MutualTLSRequires(self, "certificates")
+        self.certificate_exchange = CertificateExchangeRequires(self, "certificates")
         self.framework.observe(
-            self.mutual_tls.on.certificate_available, self._on_certificate_available
+            self.certificate_exchange.on.certificate_available, self._on_certificate_available
         )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
@@ -72,13 +73,13 @@ class DummyMutualTLSRequirerCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(DummyMutualTLSRequirerCharm)
+    main(DummyCertificateExchangeRequirerCharm)
 ```
 
 You can relate both charms by running:
 
 ```bash
-juju relate <mutual-tls provider charm> <mutual-tls requirer charm>
+juju relate <certificate_exchange provider charm> <certificate_exchange requirer charm>
 ```
 
 """
@@ -96,11 +97,11 @@ from ops.framework import EventBase, EventSource, Handle, Object
 LIBID = "b24dab3c7b464669a7710806defe34d4"
 
 # Increment this major API version when introducing breaking changes
-LIBAPI = 0
+LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 0
 
 PYDEPS = ["jsonschema"]
 
@@ -110,10 +111,10 @@ logger = logging.getLogger(__name__)
 
 PROVIDER_JSON_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://canonical.github.io/charm-relation-interfaces/interfaces/mutual_tls/schemas/provider.json",  # noqa: E501
+    "$id": "https://canonical.github.io/charm-relation-interfaces/interfaces/certificate_exchange/schemas/provider.json",  # noqa: E501
     "type": "object",
-    "title": "`mutual_tls` provider schema",
-    "description": "The `mutual_tls` root schema comprises the entire provider application databag for this interface.",  # noqa: E501
+    "title": "`certificate_exchange` provider schema",
+    "description": "The `certificate_exchange` root schema comprises the entire provider application databag for this interface.",  # noqa: E501
     "default": {},
     "examples": [
         {
@@ -199,14 +200,14 @@ def _load_relation_data(raw_relation_data: dict) -> dict:
     return loaded_relation_data
 
 
-class MutualTLSRequirerCharmEvents(CharmEvents):
-    """List of events that the Mutual TLS requirer charm can leverage."""
+class CertificateExchangeRequirerCharmEvents(CharmEvents):
+    """List of events that the Certificate Exchange requirer charm can leverage."""
 
     certificate_available = EventSource(CertificateAvailableEvent)
 
 
-class MutualTLSProvides(Object):
-    """Mutual TLS provider class."""
+class CertificateExchangeProvides(Object):
+    """Certificate Exchange provider class."""
 
     def __init__(self, charm: CharmBase, relationship_name: str):
         super().__init__(charm, relationship_name)
@@ -280,10 +281,10 @@ class MutualTLSProvides(Object):
             logger.warning("Can't remove certificate - No certificate in relation data")
 
 
-class MutualTLSRequires(Object):
+class CertificateExchangeRequires(Object):
     """TLS certificates requirer class to be instantiated by TLS certificates requirers."""
 
-    on = MutualTLSRequirerCharmEvents()
+    on = CertificateExchangeRequirerCharmEvents()
 
     def __init__(
         self,

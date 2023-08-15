@@ -4,18 +4,18 @@
 from ops.charm import CharmBase
 from ops.main import main
 
-from lib.charms.mutual_tls_interface.v0.mutual_tls import (
+from lib.charms.certificate_exchange_interface.v1.certificate_exchange import (
     CertificateAvailableEvent,
-    MutualTLSRequires,
+    CertificateExchangeRequires,
 )
 
 
-class DummyMutualTLSRequirerCharm(CharmBase):
+class DummyCertificateExchangeRequirerCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.mutual_tls = MutualTLSRequires(self, "certificates")
+        self.certificate_exchange = CertificateExchangeRequires(self, "certificates")
         self.framework.observe(
-            self.mutual_tls.on.certificate_available, self._on_certificate_available
+            self.certificate_exchange.on.certificate_available, self._on_certificate_available
         )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
@@ -25,4 +25,4 @@ class DummyMutualTLSRequirerCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(DummyMutualTLSRequirerCharm)
+    main(DummyCertificateExchangeRequirerCharm)
