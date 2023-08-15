@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "main"
-    paths:
-      - "lib/charms/certificate_exchange_interface/v0/**"
 
 jobs:
   charmhub-upload:
@@ -26,4 +24,4 @@ jobs:
         env:
           CHARMCRAFT_AUTH: "${{ secrets.CHARMCRAFT_AUTH }}"
         run: |
-          charmcraft publish-lib charms.certificate_exchange_interface.v0.certificate_exchange
+          charmcraft publish-lib charms.certificate_exchange_interface.v1.certificate_exchange
