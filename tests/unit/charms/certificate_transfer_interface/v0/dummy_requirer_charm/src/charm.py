@@ -4,18 +4,18 @@
 from ops.charm import CharmBase
 from ops.main import main
 
-from lib.charms.certificate_exchange_interface.v1.certificate_exchange import (
+from lib.charms.certificate_transfer_interface.v0.certificate_transfer import (
     CertificateAvailableEvent,
-    CertificateExchangeRequires,
+    CertificateTransferRequires,
 )
 
 
-class DummyCertificateExchangeRequirerCharm(CharmBase):
+class DummyCertificateTransferRequirerCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.certificate_exchange = CertificateExchangeRequires(self, "certificates")
+        self.certificate_transfer = CertificateTransferRequires(self, "certificates")
         self.framework.observe(
-            self.certificate_exchange.on.certificate_available, self._on_certificate_available
+            self.certificate_transfer.on.certificate_available, self._on_certificate_available
         )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
@@ -25,4 +25,4 @@ class DummyCertificateExchangeRequirerCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(DummyCertificateExchangeRequirerCharm)
+    main(DummyCertificateTransferRequirerCharm)

@@ -33,3 +33,36 @@ jobs:
         run: pip install tox
       - name: Run tests using tox
         run: tox -e unit
+
+  can-publish:
+    name: Can Publish
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+
+      - name: Can manage package
+        env:
+          CHARMCRAFT_AUTH: "${{ secrets.CHARMCRAFT_AUTH}}"
+        run: |
+          charmcraft whoami --format json | jq '.permissions[]' | grep "package-manage"
+          charmcraft whoami --format json | jq '.charms[].name' | grep "certificate-transfer-interface"
+
+  charm-builds:
+    name: Charm builds
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+
+      - name: Setup LXD
+        uses: canonical/setup-lxd@main
+        with:
+          channel: 5.13/stable
+
+      - name: Build charm
+        run: charmcraft pack --verbose
+
