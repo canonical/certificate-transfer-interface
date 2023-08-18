@@ -1,16 +1,16 @@
 # Copyright 2023 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Library for the certificate_exchange relation.
+"""Library for the certificate_transfer relation.
 
 This library contains the Requires and Provides classes for handling the
-ertificate-exchange interface.
+ertificate-transfer interface.
 
 ## Getting Started
 From a charm directory, fetch the library using `charmcraft`:
 
 ```shell
-charmcraft fetch-lib charms.certificate_exchange_interface.v1.certificate_exchange
+charmcraft fetch-lib charms.certificate_transfer_interface.v0.certificate_transfer
 ```
 
 ### Provider charm
@@ -21,13 +21,13 @@ Example:
 from ops.charm import CharmBase, RelationJoinedEvent
 from ops.main import main
 
-from lib.charms.certificate_exchange_interface.v1.certificate_exchange import CertificateExchangeProvides  # noqa: E501 W505
+from lib.charms.certificate_transfer_interface.v0.certificate_transfer import CertificateTransferProvides  # noqa: E501 W505
 
 
-class DummyCertificateExchangeProviderCharm(CharmBase):
+class DummyCertificateTransferProviderCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.certificate_exchange = CertificateExchangeProvides(self, "certificates")
+        self.certificate_transfer = CertificateTransferProvides(self, "certificates")
         self.framework.observe(
             self.on.certificates_relation_joined, self._on_certificates_relation_joined
         )
@@ -36,11 +36,11 @@ class DummyCertificateExchangeProviderCharm(CharmBase):
         certificate = "my certificate"
         ca = "my CA certificate"
         chain = ["certificate 1", "certificate 2"]
-        self.certificate_exchange.set_certificate(certificate=certificate, ca=ca, chain=chain)
+        self.certificate_transfer.set_certificate(certificate=certificate, ca=ca, chain=chain)
 
 
 if __name__ == "__main__":
-    main(DummyCertificateExchangeProviderCharm)
+    main(DummyCertificateTransferProviderCharm)
 ```
 
 ### Requirer charm
@@ -52,18 +52,18 @@ Example:
 from ops.charm import CharmBase
 from ops.main import main
 
-from lib.charms.certificate_exchange_interface.v1.certificate_exchange import (
+from lib.charms.certificate_transfer_interface.v0.certificate_transfer import (
     CertificateAvailableEvent,
-    CertificateExchangeRequires,
+    CertificateTransferRequires,
 )
 
 
-class DummyCertificateExchangeRequirerCharm(CharmBase):
+class DummyCertificateTransferRequirerCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.certificate_exchange = CertificateExchangeRequires(self, "certificates")
+        self.certificate_transfer = CertificateTransferRequires(self, "certificates")
         self.framework.observe(
-            self.certificate_exchange.on.certificate_available, self._on_certificate_available
+            self.certificate_transfer.on.certificate_available, self._on_certificate_available
         )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
@@ -73,13 +73,13 @@ class DummyCertificateExchangeRequirerCharm(CharmBase):
 
 
 if __name__ == "__main__":
-    main(DummyCertificateExchangeRequirerCharm)
+    main(DummyCertificateTransferRequirerCharm)
 ```
 
 You can relate both charms by running:
 
 ```bash
-juju relate <certificate_exchange provider charm> <certificate_exchange requirer charm>
+juju relate <certificate_transfer provider charm> <certificate_transfer requirer charm>
 ```
 
 """
@@ -94,14 +94,14 @@ from ops.charm import CharmBase, CharmEvents, RelationChangedEvent
 from ops.framework import EventBase, EventSource, Handle, Object
 
 # The unique Charmhub library identifier, never change it
-LIBID = "b24dab3c7b464669a7710806defe34d4"
+LIBID = "3785165b24a743f2b0c60de52db25c8b"
 
 # Increment this major API version when introducing breaking changes
-LIBAPI = 1
+LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 0
+LIBPATCH = 1
 
 PYDEPS = ["jsonschema"]
 
@@ -111,10 +111,10 @@ logger = logging.getLogger(__name__)
 
 PROVIDER_JSON_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://canonical.github.io/charm-relation-interfaces/interfaces/certificate_exchange/schemas/provider.json",  # noqa: E501
+    "$id": "https://canonical.github.io/charm-relation-interfaces/interfaces/certificate_transfer/schemas/provider.json",  # noqa: E501
     "type": "object",
-    "title": "`certificate_exchange` provider schema",
-    "description": "The `certificate_exchange` root schema comprises the entire provider application databag for this interface.",  # noqa: E501
+    "title": "`certificate_transfer` provider schema",
+    "description": "The `certificate_transfer` root schema comprises the entire provider application databag for this interface.",  # noqa: E501
     "default": {},
     "examples": [
         {
@@ -200,14 +200,14 @@ def _load_relation_data(raw_relation_data: dict) -> dict:
     return loaded_relation_data
 
 
-class CertificateExchangeRequirerCharmEvents(CharmEvents):
-    """List of events that the Certificate Exchange requirer charm can leverage."""
+class CertificateTransferRequirerCharmEvents(CharmEvents):
+    """List of events that the Certificate Transfer requirer charm can leverage."""
 
     certificate_available = EventSource(CertificateAvailableEvent)
 
 
-class CertificateExchangeProvides(Object):
-    """Certificate Exchange provider class."""
+class CertificateTransferProvides(Object):
+    """Certificate Transfer provider class."""
 
     def __init__(self, charm: CharmBase, relationship_name: str):
         super().__init__(charm, relationship_name)
@@ -281,10 +281,10 @@ class CertificateExchangeProvides(Object):
             logger.warning("Can't remove certificate - No certificate in relation data")
 
 
-class CertificateExchangeRequires(Object):
+class CertificateTransferRequires(Object):
     """TLS certificates requirer class to be instantiated by TLS certificates requirers."""
 
-    on = CertificateExchangeRequirerCharmEvents()
+    on = CertificateTransferRequirerCharmEvents()
 
     def __init__(
         self,

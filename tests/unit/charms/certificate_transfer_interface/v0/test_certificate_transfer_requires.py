@@ -7,24 +7,24 @@ from unittest.mock import patch
 
 from ops import testing
 
-from tests.unit.charms.certificate_exchange_interface.v1.dummy_requirer_charm.src.charm import (
-    DummyCertificateExchangeRequirerCharm,
+from tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm import (
+    DummyCertificateTransferRequirerCharm,
 )
 
-BASE_LIB_DIR = "lib.charms.certificate_exchange_interface.v1.certificate_exchange"
-BASE_CHARM_DIR = "tests.unit.charms.certificate_exchange_interface.v1.dummy_requirer_charm.src.charm.DummyCertificateExchangeRequirerCharm"  # noqa: E501
+BASE_LIB_DIR = "lib.charms.certificate_transfer_interface.v0.certificate_transfer"
+BASE_CHARM_DIR = "tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateTransferRequirerCharm"  # noqa: E501
 
 
-class TestCertificateExchangeRequires(unittest.TestCase):
+class TestCertificateTransferRequires(unittest.TestCase):
     def setUp(self):
-        self.unit_name = "certificate-exchange-interface-requirer/0"
-        self.harness = testing.Harness(DummyCertificateExchangeRequirerCharm)
+        self.unit_name = "certificate-transfer-interface-requirer/0"
+        self.harness = testing.Harness(DummyCertificateTransferRequirerCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
-    def create_certificate_exchange_relation(self) -> int:
+    def create_certificate_transfer_relation(self) -> int:
         relation_name = "certificates"
-        remote_app_name = "certificate-exchange-provider"
+        remote_app_name = "certificate-transfer-provider"
         relation_id = self.harness.add_relation(
             relation_name=relation_name,
             remote_app=remote_app_name,
@@ -35,8 +35,8 @@ class TestCertificateExchangeRequires(unittest.TestCase):
     def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
         self, patch_certificate_available
     ):
-        remote_unit_name = "certificate-exchange-provider/0"
-        relation_id = self.create_certificate_exchange_relation()
+        remote_unit_name = "certificate-transfer-provider/0"
+        relation_id = self.create_certificate_transfer_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         certificate = "whatever certificate"
         ca = "whatever CA certificate"
@@ -61,8 +61,8 @@ class TestCertificateExchangeRequires(unittest.TestCase):
     def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
         self, patch_certificate_available
     ):
-        remote_unit_name = "certificate-exchange-provider/0"
-        relation_id = self.create_certificate_exchange_relation()
+        remote_unit_name = "certificate-transfer-provider/0"
+        relation_id = self.create_certificate_transfer_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         certificate = "whatever certificate"
         key_values = {
@@ -81,8 +81,8 @@ class TestCertificateExchangeRequires(unittest.TestCase):
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_warning_log_is_emitted(  # noqa: E501
         self,
     ):
-        remote_unit_name = "certificate-exchange-provider/0"
-        relation_id = self.create_certificate_exchange_relation()
+        remote_unit_name = "certificate-transfer-provider/0"
+        relation_id = self.create_certificate_transfer_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         key_values = {
             "banana": "whatever banana content",
@@ -99,12 +99,12 @@ class TestCertificateExchangeRequires(unittest.TestCase):
     def test_given_provider_uses_application_relation_data_when_relation_changed_then_log_is_emitted(  # noqa: E501
         self,
     ):
-        relation_id = self.create_certificate_exchange_relation()
+        relation_id = self.create_certificate_transfer_relation()
         key_values = {"certificate": "whatever cert"}
         with self.assertLogs(BASE_LIB_DIR, level="INFO") as log:
             self.harness.update_relation_data(
                 relation_id=relation_id,
-                app_or_unit="certificate-exchange-provider",
+                app_or_unit="certificate-transfer-provider",
                 key_values=key_values,
             )
 
