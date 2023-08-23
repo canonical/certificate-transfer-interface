@@ -70,6 +70,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         print(event.certificate)
         print(event.ca)
         print(event.chain)
+        print(event.relation_id)
 
 
 if __name__ == "__main__":
@@ -161,11 +162,13 @@ class CertificateAvailableEvent(EventBase):
         certificate: str,
         ca: str,
         chain: List[str],
+        relation_id: int,
     ):
         super().__init__(handle)
         self.certificate = certificate
         self.ca = ca
         self.chain = chain
+        self.relation_id = relation_id
 
     def snapshot(self) -> dict:
         """Return snapshot."""
@@ -173,6 +176,7 @@ class CertificateAvailableEvent(EventBase):
             "certificate": self.certificate,
             "ca": self.ca,
             "chain": self.chain,
+            "relation_id": self.relation_id,
         }
 
     def restore(self, snapshot: dict):
@@ -180,6 +184,7 @@ class CertificateAvailableEvent(EventBase):
         self.certificate = snapshot["certificate"]
         self.ca = snapshot["ca"]
         self.chain = snapshot["chain"]
+        self.relation_id = snapshot["relation_id"]
 
 
 def _load_relation_data(raw_relation_data: dict) -> dict:
@@ -350,4 +355,5 @@ class CertificateTransferRequires(Object):
             certificate=remote_unit_relation_data.get("certificate"),
             ca=remote_unit_relation_data.get("ca"),
             chain=remote_unit_relation_data.get("chain"),
+            relation_id=remote_unit_relation_data.get("relation_id"),
         )

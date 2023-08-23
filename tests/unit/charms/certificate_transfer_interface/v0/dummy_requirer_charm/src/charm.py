@@ -22,6 +22,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         print(event.certificate)
         print(event.ca)
         print(event.chain)
+        print(event.relation_id)
 
 
 if __name__ == "__main__":
