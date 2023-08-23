@@ -54,13 +54,20 @@ class TestCertificateTransferProvides(unittest.TestCase):
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
-        relation_id = relation_id + 5
+        wrong_relation_id = (
+            relation_id + 2
+        )  # We choose a relation id which is different than we created.
+        with self.assertRaises(KeyError):  # A relation which has wrong_relation_id does not exist.
+            self.harness.get_relation_data(
+                app_or_unit="certificate-transfer-interface-provider/0",
+                relation_id=wrong_relation_id,
+            )
         certificate = "whatever cert"
         ca = "whatever ca"
         chain = ["whatever cert 1", "whatever cert 2"]
         with self.assertRaises(KeyError):
             self.harness.charm.certificate_transfer.set_certificate(
-                certificate=certificate, ca=ca, chain=chain, relation_id=relation_id
+                certificate=certificate, ca=ca, chain=chain, relation_id=wrong_relation_id
             )
 
     def test_given_no_certificate_transfer_relation_a_dummy_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
@@ -134,8 +141,8 @@ class TestCertificateTransferProvides(unittest.TestCase):
             key_values=relation_data,
             app_or_unit="certificate-transfer-interface-provider/0",
         )
-        relation_id = int(relation_id) + 2
-        self.harness.charm.certificate_transfer.remove_certificate(relation_id=relation_id)
+        wrong_relation_id = int(relation_id) + 2
+        self.harness.charm.certificate_transfer.remove_certificate(relation_id=wrong_relation_id)
         assert "certificate" in relation_data
         assert "ca" in relation_data
         assert "chain" in relation_data
