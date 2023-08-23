@@ -36,7 +36,7 @@ class DummyCertificateTransferProviderCharm(CharmBase):
         certificate = "my certificate"
         ca = "my CA certificate"
         chain = ["certificate 1", "certificate 2"]
-        self.certificate_transfer.set_certificate(certificate=certificate, ca=ca, chain=chain)
+        self.certificate_transfer.set_certificate(certificate=certificate, ca=ca, chain=chain, relation_id=event.relation.id)
 
 
 if __name__ == "__main__":
@@ -101,7 +101,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 PYDEPS = ["jsonschema"]
 
@@ -232,6 +232,9 @@ class CertificateTransferProvides(Object):
         Returns:
             None
         """
+        if relation_id is None:
+            raise RuntimeError("relation_id should be provided.")
+
         relation = self.model.get_relation(
             relation_name=self.relationship_name,
             relation_id=relation_id,
@@ -254,6 +257,9 @@ class CertificateTransferProvides(Object):
         Returns:
             None
         """
+        if relation_id is None:
+            raise RuntimeError("relation_id should be provided.")
+
         relation = self.model.get_relation(
             relation_name=self.relationship_name,
             relation_id=relation_id,

@@ -21,7 +21,9 @@ class DummyCertificateTransferProviderCharm(CharmBase):
         certificate = "my certificate"
         ca = "my CA certificate"
         chain = ["certificate 1", "certificate 2"]
-        self.certificate_transfer.set_certificate(certificate=certificate, ca=ca, chain=chain)
+        self.certificate_transfer.set_certificate(
+            certificate=certificate, ca=ca, chain=chain, relation_id=event.relation.id
+        )
 
 
 if __name__ == "__main__":
