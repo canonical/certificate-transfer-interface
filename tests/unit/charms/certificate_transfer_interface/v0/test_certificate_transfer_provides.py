@@ -70,15 +70,21 @@ class TestCertificateTransferProvides(unittest.TestCase):
                 certificate=certificate, ca=ca, chain=chain, relation_id=wrong_relation_id
             )
 
-    def test_given_no_certificate_transfer_relation_a_dummy_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
+    def test_given_no_certificate_transfer_relation_a_wrong_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
         self,
     ):
         certificate = "whatever cert"
         ca = "whatever ca"
         chain = ["whatever cert 1", "whatever cert 2"]
+        wrong_relation_id = 0  # We select a dummy relation number.
+        with self.assertRaises(KeyError):  # A relation which has wrong_relation_id does not exist.
+            self.harness.get_relation_data(
+                app_or_unit="certificate-transfer-interface-provider/0",
+                relation_id=wrong_relation_id,
+            )
         with self.assertRaises(KeyError):
             self.harness.charm.certificate_transfer.set_certificate(
-                certificate=certificate, ca=ca, chain=chain, relation_id=0
+                certificate=certificate, ca=ca, chain=chain, relation_id=wrong_relation_id
             )
 
     def test_given_certificate_transfer_relation_exists_when_remove_certificate_then_certificate_removed_from_relation_data(  # noqa: E501
