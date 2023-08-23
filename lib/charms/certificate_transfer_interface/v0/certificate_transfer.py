@@ -88,7 +88,7 @@ juju relate <certificate_transfer provider charm> <certificate_transfer requirer
 
 import json
 import logging
-from typing import List, Optional
+from typing import List
 
 from jsonschema import exceptions, validate  # type: ignore[import]
 from ops.charm import CharmBase, CharmEvents, RelationChangedEvent
@@ -224,7 +224,7 @@ class CertificateTransferProvides(Object):
         certificate: str,
         ca: str,
         chain: List[str],
-        relation_id: Optional[int] = None,
+        relation_id: int,
     ) -> None:
         """Add certificates to relation data.
 
@@ -237,9 +237,6 @@ class CertificateTransferProvides(Object):
         Returns:
             None
         """
-        if relation_id is None:
-            raise RuntimeError("relation_id should be provided.")
-
         relation = self.model.get_relation(
             relation_name=self.relationship_name,
             relation_id=relation_id,
@@ -253,7 +250,7 @@ class CertificateTransferProvides(Object):
         relation.data[self.model.unit]["ca"] = ca
         relation.data[self.model.unit]["chain"] = json.dumps(chain)
 
-    def remove_certificate(self, relation_id: Optional[int] = None) -> None:
+    def remove_certificate(self, relation_id: int) -> None:
         """Remove a given certificate from relation data.
 
         Args:
@@ -262,10 +259,6 @@ class CertificateTransferProvides(Object):
         Returns:
             None
         """
-        if relation_id is None:
-            logger.warning("relation_id should be provided.")
-            return
-
         relation = self.model.get_relation(
             relation_name=self.relationship_name,
             relation_id=relation_id,

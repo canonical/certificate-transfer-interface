@@ -63,17 +63,16 @@ class TestCertificateTransferProvides(unittest.TestCase):
                 certificate=certificate, ca=ca, chain=chain, relation_id=relation_id
             )
 
-    def test_given_no_certificate_transfer_relation_when_set_certificate_then_runtime_error_is_raised(  # noqa: E501
+    def test_given_no_certificate_transfer_relation_a_dummy_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
         self,
     ):
         certificate = "whatever cert"
         ca = "whatever ca"
         chain = ["whatever cert 1", "whatever cert 2"]
-        with self.assertRaises(RuntimeError) as error:
+        with self.assertRaises(KeyError):
             self.harness.charm.certificate_transfer.set_certificate(
-                certificate=certificate, ca=ca, chain=chain
+                certificate=certificate, ca=ca, chain=chain, relation_id=0
             )
-        self.assertEqual(str(error.exception), "relation_id should be provided.")
 
     def test_given_certificate_transfer_relation_exists_when_remove_certificate_then_certificate_removed_from_relation_data(  # noqa: E501
         self,
@@ -120,25 +119,6 @@ class TestCertificateTransferProvides(unittest.TestCase):
             relation_id=relation_id,
         )
         assert "certificate" not in relation_data
-
-    def test_given_certificate_transfer_relation_exists_and_id_not_provided_when_remove_certificate_then_log_is_emitted(  # noqa: E501
-        self,
-    ):
-        relation_id = self.create_certificate_transfer_relation()
-        relation_data = {
-            "certificate": "whatever cert",
-            "ca": "whatever ca",
-            "chain": json.dumps(["cert 1", "cert 2"]),
-        }
-        self.harness.update_relation_data(
-            relation_id=relation_id,
-            key_values=relation_data,
-            app_or_unit="certificate-transfer-interface-provider/0",
-        )
-        with self.assertLogs(BASE_LIB_DIR, level="WARNING") as log:
-            self.harness.charm.certificate_transfer.remove_certificate()
-
-        assert "relation_id should be provided" in log.output[0]
 
     def test_given_certificate_transfer_relation_exists_and_wrong_relation_id_provided_when_remove_certificate_then_data_exists_in_relation(  # noqa: E501
         self,
