@@ -121,7 +121,7 @@ class TestCertificateTransferProvides(unittest.TestCase):
         )
         assert "certificate" not in relation_data
 
-    def test_given_certificate_transfer_relation_exists_and_id_not_provided_when_remove_certificate_then_raises_run_time_error(  # noqa: E501
+    def test_given_certificate_transfer_relation_exists_and_id_not_provided_when_remove_certificate_then_log_is_emitted(  # noqa: E501
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -135,10 +135,10 @@ class TestCertificateTransferProvides(unittest.TestCase):
             key_values=relation_data,
             app_or_unit="certificate-transfer-interface-provider/0",
         )
-        with self.assertRaises(RuntimeError) as error:
+        with self.assertLogs(BASE_LIB_DIR, level="WARNING") as log:
             self.harness.charm.certificate_transfer.remove_certificate()
 
-        self.assertEqual(str(error.exception), "relation_id should be provided.")
+        assert "relation_id should be provided" in log.output[0]
 
     def test_given_certificate_transfer_relation_exists_and_wrong_relation_id_provided_when_remove_certificate_then_data_exists_in_relation(  # noqa: E501
         self,

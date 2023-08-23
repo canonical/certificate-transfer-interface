@@ -258,7 +258,8 @@ class CertificateTransferProvides(Object):
             None
         """
         if relation_id is None:
-            raise RuntimeError("relation_id should be provided.")
+            logger.warning("relation_id should be provided.")
+            return
 
         relation = self.model.get_relation(
             relation_name=self.relationship_name,
