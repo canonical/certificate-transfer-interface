@@ -91,7 +91,7 @@ import logging
 from typing import List
 
 from jsonschema import exceptions, validate  # type: ignore[import]
-from ops.charm import CharmBase, CharmEvents, RelationChangedEvent
+from ops.charm import CharmBase, CharmEvents, RelationBrokenEvent, RelationChangedEvent
 from ops.framework import EventBase, EventSource, Handle, Object
 
 # The unique Charmhub library identifier, never change it
@@ -102,7 +102,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 PYDEPS = ["jsonschema"]
 
@@ -187,6 +187,21 @@ class CertificateAvailableEvent(EventBase):
         self.relation_id = snapshot["relation_id"]
 
 
+class CertificateRemovedEvent(EventBase):
+    """Charm Event triggered when a TLS certificate is removed."""
+
+    def __init__(self, handle: Handle):
+        super().__init__(handle)
+
+    def snapshot(self) -> dict:
+        """Return snapshot."""
+        return {}
+
+    def restore(self, snapshot: dict):
+        """Restores snapshot."""
+        pass
+
+
 def _load_relation_data(raw_relation_data: dict) -> dict:
     """Load relation data from the relation data bag.
 
@@ -209,6 +224,7 @@ class CertificateTransferRequirerCharmEvents(CharmEvents):
     """List of events that the Certificate Transfer requirer charm can leverage."""
 
     certificate_available = EventSource(CertificateAvailableEvent)
+    certificate_removed = EventSource(CertificateRemovedEvent)
 
 
 class CertificateTransferProvides(Object):
@@ -308,6 +324,9 @@ class CertificateTransferRequires(Object):
         self.framework.observe(
             charm.on[relationship_name].relation_changed, self._on_relation_changed
         )
+        self.framework.observe(
+            charm.on[relationship_name].relation_broken, self._on_relation_broken
+        )
 
     @staticmethod
     def _relation_data_is_valid(relation_data: dict) -> bool:
@@ -350,3 +369,14 @@ class CertificateTransferRequires(Object):
             chain=remote_unit_relation_data.get("chain"),
             relation_id=remote_unit_relation_data.get("relation_id"),
         )
+
+    def _on_relation_broken(self, event: RelationBrokenEvent) -> None:
+        """Handler triggered on relation broken event.
+
+        Args:
+            event: Juju event
+
+        Returns:
+            None
+        """
+        self.on.certificate_removed.emit()
