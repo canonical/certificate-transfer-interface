@@ -46,6 +46,7 @@ class TestCertificateTransferRequires(unittest.TestCase):
             "certificate": certificate,
             "ca": ca,
             "chain": chain_string,
+            "relation_id": str(relation_id),
         }
         self.harness.update_relation_data(
             relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
@@ -56,6 +57,7 @@ class TestCertificateTransferRequires(unittest.TestCase):
         assert certificate_available_event.certificate == certificate
         assert certificate_available_event.ca == ca
         assert certificate_available_event.chain == chain
+        assert certificate_available_event.relation_id == relation_id
 
     @patch(f"{BASE_CHARM_DIR}._on_certificate_available")  # noqa: E501
     def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
@@ -67,6 +69,7 @@ class TestCertificateTransferRequires(unittest.TestCase):
         certificate = "whatever certificate"
         key_values = {
             "certificate": certificate,
+            "relation_id": str(relation_id),
         }
         self.harness.update_relation_data(
             relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
@@ -77,6 +80,7 @@ class TestCertificateTransferRequires(unittest.TestCase):
         assert certificate_available_event.certificate == certificate
         assert certificate_available_event.ca is None
         assert certificate_available_event.chain is None
+        assert certificate_available_event.relation_id == relation_id
 
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_warning_log_is_emitted(  # noqa: E501
         self,

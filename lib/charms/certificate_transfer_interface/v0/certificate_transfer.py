@@ -36,7 +36,7 @@ class DummyCertificateTransferProviderCharm(CharmBase):
         certificate = "my certificate"
         ca = "my CA certificate"
         chain = ["certificate 1", "certificate 2"]
-        self.certificate_transfer.set_certificate(certificate=certificate, ca=ca, chain=chain)
+        self.certificate_transfer.set_certificate(certificate=certificate, ca=ca, chain=chain, relation_id=event.relation.id)
 
 
 if __name__ == "__main__":
@@ -70,6 +70,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         print(event.certificate)
         print(event.ca)
         print(event.chain)
+        print(event.relation_id)
 
 
 if __name__ == "__main__":
@@ -87,7 +88,7 @@ juju relate <certificate_transfer provider charm> <certificate_transfer requirer
 
 import json
 import logging
-from typing import List, Optional
+from typing import List
 
 from jsonschema import exceptions, validate  # type: ignore[import]
 from ops.charm import CharmBase, CharmEvents, RelationChangedEvent
@@ -101,7 +102,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 PYDEPS = ["jsonschema"]
 
@@ -161,11 +162,13 @@ class CertificateAvailableEvent(EventBase):
         certificate: str,
         ca: str,
         chain: List[str],
+        relation_id: int,
     ):
         super().__init__(handle)
         self.certificate = certificate
         self.ca = ca
         self.chain = chain
+        self.relation_id = relation_id
 
     def snapshot(self) -> dict:
         """Return snapshot."""
@@ -173,6 +176,7 @@ class CertificateAvailableEvent(EventBase):
             "certificate": self.certificate,
             "ca": self.ca,
             "chain": self.chain,
+            "relation_id": self.relation_id,
         }
 
     def restore(self, snapshot: dict):
@@ -180,6 +184,7 @@ class CertificateAvailableEvent(EventBase):
         self.certificate = snapshot["certificate"]
         self.ca = snapshot["ca"]
         self.chain = snapshot["chain"]
+        self.relation_id = snapshot["relation_id"]
 
 
 def _load_relation_data(raw_relation_data: dict) -> dict:
@@ -219,7 +224,7 @@ class CertificateTransferProvides(Object):
         certificate: str,
         ca: str,
         chain: List[str],
-        relation_id: Optional[int] = None,
+        relation_id: int,
     ) -> None:
         """Add certificates to relation data.
 
@@ -245,7 +250,7 @@ class CertificateTransferProvides(Object):
         relation.data[self.model.unit]["ca"] = ca
         relation.data[self.model.unit]["chain"] = json.dumps(chain)
 
-    def remove_certificate(self, relation_id: Optional[int] = None) -> None:
+    def remove_certificate(self, relation_id: int) -> None:
         """Remove a given certificate from relation data.
 
         Args:
@@ -343,4 +348,5 @@ class CertificateTransferRequires(Object):
             certificate=remote_unit_relation_data.get("certificate"),
             ca=remote_unit_relation_data.get("ca"),
             chain=remote_unit_relation_data.get("chain"),
+            relation_id=remote_unit_relation_data.get("relation_id"),
         )

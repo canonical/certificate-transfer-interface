@@ -19,9 +19,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
-        print(event.certificate)
-        print(event.ca)
-        print(event.chain)
+        pass
 
 
 if __name__ == "__main__":
