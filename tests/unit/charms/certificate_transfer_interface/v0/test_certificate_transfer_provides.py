@@ -50,41 +50,33 @@ class TestCertificateTransferProvides(unittest.TestCase):
         self.assertEqual(relation_data["ca"], ca)
         self.assertEqual(relation_data["chain"], json.dumps(chain))
 
-    def test_given_wrong_relation_id_and_certificate_transfer_relation_exists_when_set_certificate_then_raises_key_error(  # noqa: E501
+    def test_given_invalid_relation_id_and_certificate_transfer_relation_exists_when_set_certificate_then_raises_key_error(  # noqa: E501
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
-        wrong_relation_id = (
+        invalid_relation_id = (
             relation_id + 2
         )  # We choose a relation id which is different than we created.
-        with self.assertRaises(KeyError):  # A relation which has wrong_relation_id does not exist.
-            self.harness.get_relation_data(
-                app_or_unit="certificate-transfer-interface-provider/0",
-                relation_id=wrong_relation_id,
-            )
+        self.validate_relation_does_not_exist(invalid_relation_id)
         certificate = "whatever cert"
         ca = "whatever ca"
         chain = ["whatever cert 1", "whatever cert 2"]
         with self.assertRaises(KeyError):
             self.harness.charm.certificate_transfer.set_certificate(
-                certificate=certificate, ca=ca, chain=chain, relation_id=wrong_relation_id
+                certificate=certificate, ca=ca, chain=chain, relation_id=invalid_relation_id
             )
 
-    def test_given_no_certificate_transfer_relation_a_wrong_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
+    def test_given_no_certificate_transfer_relation_and_invalid_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
         self,
     ):
         certificate = "whatever cert"
         ca = "whatever ca"
         chain = ["whatever cert 1", "whatever cert 2"]
-        wrong_relation_id = 0  # We select a dummy relation number.
-        with self.assertRaises(KeyError):  # A relation which has wrong_relation_id does not exist.
-            self.harness.get_relation_data(
-                app_or_unit="certificate-transfer-interface-provider/0",
-                relation_id=wrong_relation_id,
-            )
+        invalid_relation_id = 0  # We select an invalid relation number.
+        self.validate_relation_does_not_exist(invalid_relation_id)
         with self.assertRaises(KeyError):
             self.harness.charm.certificate_transfer.set_certificate(
-                certificate=certificate, ca=ca, chain=chain, relation_id=wrong_relation_id
+                certificate=certificate, ca=ca, chain=chain, relation_id=invalid_relation_id
             )
 
     def test_given_certificate_transfer_relation_exists_when_remove_certificate_then_certificate_removed_from_relation_data(  # noqa: E501
@@ -133,7 +125,7 @@ class TestCertificateTransferProvides(unittest.TestCase):
         )
         assert "certificate" not in relation_data
 
-    def test_given_certificate_transfer_relation_exists_and_wrong_relation_id_provided_when_remove_certificate_then_data_exists_in_relation(  # noqa: E501
+    def test_given_certificate_transfer_relation_exists_and_invalid_relation_id_provided_when_remove_certificate_then_data_exists_in_relation(  # noqa: E501
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -147,8 +139,8 @@ class TestCertificateTransferProvides(unittest.TestCase):
             key_values=relation_data,
             app_or_unit="certificate-transfer-interface-provider/0",
         )
-        wrong_relation_id = int(relation_id) + 2
-        self.harness.charm.certificate_transfer.remove_certificate(relation_id=wrong_relation_id)
+        invalid_relation_id = int(relation_id) + 2
+        self.harness.charm.certificate_transfer.remove_certificate(relation_id=invalid_relation_id)
         assert "certificate" in relation_data
         assert "ca" in relation_data
         assert "chain" in relation_data
@@ -162,3 +154,15 @@ class TestCertificateTransferProvides(unittest.TestCase):
             self.harness.charm.certificate_transfer.remove_certificate(relation_id=relation_id)
 
         assert "Can't remove certificate - No certificate in relation data" in log.output[0]
+
+    def validate_relation_does_not_exist(self, relation_id: int) -> None:
+        """A relation which has invalid_relation_id does not exist.
+
+        Args:
+            relation_id (int):  Relation_id
+        """
+        with self.assertRaises(KeyError):
+            self.harness.get_relation_data(
+                app_or_unit="certificate-transfer-interface-provider/0",
+                relation_id=relation_id,
+            )
