@@ -113,3 +113,14 @@ class TestCertificateTransferRequires(unittest.TestCase):
             )
 
         assert "No remote unit in relation" in log.output[0]
+
+    @patch(f"{BASE_CHARM_DIR}._on_certificate_removed")
+    def test_given_certificate_in_relation_data_when_relation_broken_then_certificate_removed_event_is_emitted(  # noqa: E501
+        self, patch_on_certificate_removed
+    ):
+        remote_unit_name = "certificate-transfer-provider/0"
+        relation_id = self.create_certificate_transfer_relation()
+        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
+        self.harness.remove_relation(relation_id)
+
+        patch_on_certificate_removed.assert_called()

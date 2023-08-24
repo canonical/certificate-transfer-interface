@@ -6,6 +6,7 @@ from ops.main import main
 
 from lib.charms.certificate_transfer_interface.v0.certificate_transfer import (
     CertificateAvailableEvent,
+    CertificateRemovedEvent,
     CertificateTransferRequires,
 )
 
@@ -17,8 +18,14 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         self.framework.observe(
             self.certificate_transfer.on.certificate_available, self._on_certificate_available
         )
+        self.framework.observe(
+            self.certificate_transfer.on.certificate_removed, self._on_certificate_removed
+        )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
+        pass
+
+    def _on_certificate_removed(self, event: CertificateRemovedEvent):
         pass
 
 
