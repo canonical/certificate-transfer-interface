@@ -54,6 +54,7 @@ from ops.main import main
 
 from lib.charms.certificate_transfer_interface.v0.certificate_transfer import (
     CertificateAvailableEvent,
+    CertificateRemovedEvent,
     CertificateTransferRequires,
 )
 
@@ -65,11 +66,17 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         self.framework.observe(
             self.certificate_transfer.on.certificate_available, self._on_certificate_available
         )
+        self.framework.observe(
+            self.certificate_transfer.on.certificate_removed, self._on_certificate_removed
+        )
 
     def _on_certificate_available(self, event: CertificateAvailableEvent):
         print(event.certificate)
         print(event.ca)
         print(event.chain)
+        print(event.relation_id)
+
+    def _on_certificate_removed(self, event: CertificateRemovedEvent):
         print(event.relation_id)
 
 
@@ -190,16 +197,17 @@ class CertificateAvailableEvent(EventBase):
 class CertificateRemovedEvent(EventBase):
     """Charm Event triggered when a TLS certificate is removed."""
 
-    def __init__(self, handle: Handle):
+    def __init__(self, handle: Handle, relation_id: int):
         super().__init__(handle)
+        self.relation_id = relation_id
 
     def snapshot(self) -> dict:
         """Return snapshot."""
-        return {}
+        return {"relation_id": self.relation_id}
 
     def restore(self, snapshot: dict):
         """Restores snapshot."""
-        pass
+        self.relation_id = snapshot["relation_id"]
 
 
 def _load_relation_data(raw_relation_data: dict) -> dict:
@@ -379,4 +387,4 @@ class CertificateTransferRequires(Object):
         Returns:
             None
         """
-        self.on.certificate_removed.emit()
+        self.on.certificate_removed.emit(relation_id=event.relation.id)
