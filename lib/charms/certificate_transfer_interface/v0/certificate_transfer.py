@@ -375,7 +375,7 @@ class CertificateTransferRequires(Object):
             certificate=remote_unit_relation_data.get("certificate"),
             ca=remote_unit_relation_data.get("ca"),
             chain=remote_unit_relation_data.get("chain"),
-            relation_id=remote_unit_relation_data.get("relation_id"),
+            relation_id=event.relation.id,
         )
 
     def _on_relation_broken(self, event: RelationBrokenEvent) -> None:
