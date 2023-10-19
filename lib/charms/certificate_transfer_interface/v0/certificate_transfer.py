@@ -97,7 +97,7 @@ import json
 import logging
 from typing import List
 
-from jsonschema import exceptions, validate  # type: ignore[import]
+from jsonschema import exceptions, validate  # type: ignore[import-untyped]
 from ops.charm import CharmBase, CharmEvents, RelationBrokenEvent, RelationChangedEvent
 from ops.framework import EventBase, EventSource, Handle, Object
 
