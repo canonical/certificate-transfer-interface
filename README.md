@@ -1,6 +1,5 @@
 # certificate-transfer-interface
-
-## Description
+[![CharmHub Badge](https://charmhub.io/certificate-transfer-interface/badge.svg)](https://charmhub.io/certificate-transfer-interface)
 
 This project contains libraries for use by providers and requirers of the `certificate-transfer` integration. 
 
