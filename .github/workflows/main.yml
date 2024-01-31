@@ -26,7 +26,7 @@ jobs:
       - static-analysis
       - unit-tests-with-coverage
       - integration-test
-    if: ${{ github.ref_name == 'main' }}
+    # if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/publish-charm.yaml
     secrets:
       CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
@@ -35,7 +35,7 @@ jobs:
     name: Publish Lib
     needs: 
       - publish-charm
-    if: ${{ github.ref_name == 'main' }}
+    # if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/publish-lib.yaml
     secrets:
       CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
