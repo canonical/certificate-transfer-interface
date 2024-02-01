@@ -1,67 +1,37 @@
-name: CI
+name: Main
 
 on:
   push:
-  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
+
   lint-report:
-    name: Lint report
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-      - name: Install tox
-        run: pip install tox
-      - name: Run tests using tox
-        run: tox -e lint
+    uses: ./.github/workflows/lint-report.yaml
 
   static-analysis:
-    name: Static analysis
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-      - name: Install tox
-        run: pip install tox
-      - name: Run tests using tox
-        run: tox -e static
+    uses: ./.github/workflows/static-analysis.yaml
 
   unit-tests-with-coverage:
-    name: Unit tests
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-      - name: Install tox
-        run: pip install tox
-      - name: Run tests using tox
-        run: tox -e unit
+    uses: ./.github/workflows/unit-test.yaml
 
-  can-publish:
-    name: Can Publish
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Install charmcraft
-        run: sudo snap install charmcraft --classic
-
-      - name: Can manage package
-        env:
-          CHARMCRAFT_AUTH: "${{ secrets.CHARMCRAFT_AUTH}}"
-        run: |
-          charmcraft whoami --format json | jq '.permissions[]' | grep "package-manage"
-          charmcraft whoami --format json | jq '.charms[].name' | grep "certificate-transfer-interface"
-
-  charm-builds:
-    name: Charm builds
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-
-      - name: Setup LXD
-        uses: canonical/setup-lxd@main
-
-      - name: Install charmcraft
-        run: sudo snap install charmcraft --classic
-
-      - name: Build charm
-        run: charmcraft pack --verbose
-
+  publish-charm:
+    name: Publish Charm
+    needs:
+      - lint-report
+      - static-analysis
+      - unit-tests-with-coverage
+    if: ${{ github.ref_name == 'main' }}
+    uses: ./.github/workflows/publish-charm.yaml
+    secrets:
+      CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
+  
+  publish-lib:
+    name: Publish Lib
+    needs: 
+      - publish-charm
+    if: ${{ github.ref_name == 'main' }}
+    uses: ./.github/workflows/publish-lib.yaml
+    secrets:
+      CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
