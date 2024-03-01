@@ -156,7 +156,7 @@ class TestCertificateTransferProvides(unittest.TestCase):
         assert "Can't remove certificate - No certificate in relation data" in log.output[0]
 
     def validate_relation_does_not_exist(self, relation_id: int) -> None:
-        """A relation which has invalid_relation_id does not exist.
+        """Validate that a relation which has invalid_relation_id does not exist.
 
         Args:
             relation_id (int):  Relation_id
