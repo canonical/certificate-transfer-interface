@@ -16,12 +16,32 @@ jobs:
   unit-tests-with-coverage:
     uses: ./.github/workflows/unit-test.yaml
 
+  build:
+    name: Build charm
+    runs-on: ubuntu-22.04
+    needs:
+      - unit-tests-with-coverage
+      - lint-report
+      - static-analysis
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup LXD
+        uses: canonical/setup-lxd@main
+        with:
+          channel: 5.0/stable
+      - name: Install charmcraft
+        run: sudo snap install charmcraft --classic
+      - name: Build charm
+        run: charmcraft pack --verbose
+
   publish-charm:
     name: Publish Charm
     needs:
       - lint-report
       - static-analysis
       - unit-tests-with-coverage
+      - build
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/publish-charm.yaml
     secrets:
