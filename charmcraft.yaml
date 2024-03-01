@@ -9,6 +9,9 @@ bases:
 
 parts:
   charm:
-    charm-binary-python-packages:
-      - cryptography
-      - jsonschema
+    build-packages:
+      - libffi-dev
+      - libssl-dev
+      - rustc
+      - cargo
+      - pkg-config
