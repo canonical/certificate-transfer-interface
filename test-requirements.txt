@@ -123,7 +123,7 @@ pyrfc3339==1.1
     #   macaroonbakery
 pyright==1.1.352
     # via -r test-requirements.in
-pytest==8.0.2
+pytest==8.1.0
     # via
     #   -r test-requirements.in
     #   pytest-asyncio
@@ -138,7 +138,6 @@ pytz==2024.1
     # via pyrfc3339
 pyyaml==6.0.1
     # via
-    #   -c requirements.txt
     #   juju
     #   kubernetes
     #   pytest-operator
@@ -180,9 +179,7 @@ urllib3==2.2.1
 wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.7.0
-    # via
-    #   -c requirements.txt
-    #   kubernetes
+    # via kubernetes
 websockets==12.0
     # via juju
 
