@@ -35,7 +35,7 @@ jobs:
       - name: Setup LXD
         uses: canonical/setup-lxd@main
         with:
-          channel: 5.0/stable
+          channel: 5.20/stable
       - name: Install charmcraft
         run: sudo snap install charmcraft --classic
       - name: Build charm
