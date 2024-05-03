@@ -1,3 +1,12 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: certificate-transfer-interface
+
+summary: Placeholder charm
+
+description: Placeholder charm.
+
 type: charm
 bases:
   - build-on:
