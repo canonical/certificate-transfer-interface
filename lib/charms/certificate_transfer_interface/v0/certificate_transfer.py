@@ -96,7 +96,6 @@ juju relate <certificate_transfer provider charm> <certificate_transfer requirer
 
 """
 
-
 import json
 import logging
 from typing import List, Mapping
