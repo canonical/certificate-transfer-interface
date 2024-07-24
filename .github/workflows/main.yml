@@ -25,7 +25,7 @@ jobs:
     uses: ./.github/workflows/unit-test.yaml
 
   build:
-    name: Build charm
+    name: build charm
     runs-on: ubuntu-22.04
     needs:
       - unit-tests-with-coverage
