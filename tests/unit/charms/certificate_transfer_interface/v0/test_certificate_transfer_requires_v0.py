@@ -15,7 +15,7 @@ BASE_LIB_DIR = "lib.charms.certificate_transfer_interface.v0.certificate_transfe
 BASE_CHARM_DIR = "tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateTransferRequirerCharm"  # noqa: E501
 
 
-class TestCertificateTransferRequires(unittest.TestCase):
+class TestCertificateTransferRequiresV0(unittest.TestCase):
     def setUp(self):
         self.unit_name = "certificate-transfer-interface-requirer/0"
         self.harness = testing.Harness(DummyCertificateTransferRequirerCharm)
