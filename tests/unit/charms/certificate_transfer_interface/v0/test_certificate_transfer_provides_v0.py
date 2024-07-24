@@ -13,7 +13,7 @@ from tests.unit.charms.certificate_transfer_interface.v0.dummy_provider_charm.sr
 BASE_LIB_DIR = "lib.charms.certificate_transfer_interface.v0.certificate_transfer"
 
 
-class TestCertificateTransferProvides(unittest.TestCase):
+class TestCertificateTransferProvidesV0(unittest.TestCase):
     def setUp(self):
         self.unit_name = "certificate-transfer-interface-provider/0"
         self.harness = testing.Harness(DummyCertificateTransferProviderCharm)
