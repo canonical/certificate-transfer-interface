@@ -216,20 +216,6 @@ class CertificateTransferProvides(Object):
         self.charm = charm
         self.relationship_name = relationship_name
 
-    def add_certificate(self, certificate: str, relation_id: Optional[int] = None) -> None:
-        """Add certificate to relation data.
-
-        Adds certificate to all relations if relation_id is not provided.
-
-        Args:
-            certificate (str): A single certificate string in PEM format
-            relation_id (int): Juju relation ID
-
-        Returns:
-            None
-        """
-        self.add_certificates({certificate}, relation_id)
-
     def add_certificates(self, certificates: Set[str], relation_id: Optional[int] = None) -> None:
         """Add certificates from a set to relation data.
 
