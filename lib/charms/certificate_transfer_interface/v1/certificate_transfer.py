@@ -115,7 +115,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 0
+LIBPATCH = 1
 
 logger = logging.getLogger(__name__)
 
@@ -217,12 +217,26 @@ class CertificateTransferProvides(Object):
         self.relationship_name = relationship_name
 
     def add_certificate(self, certificate: str, relation_id: Optional[int] = None) -> None:
-        """Add certificates to relation data.
+        """Add certificate to relation data.
 
         Adds certificate to all relations if relation_id is not provided.
 
         Args:
             certificate (str): A single certificate string in PEM format
+            relation_id (int): Juju relation ID
+
+        Returns:
+            None
+        """
+        self.add_certificates({certificate}, relation_id)
+
+    def add_certificates(self, certificates: Set[str], relation_id: Optional[int] = None) -> None:
+        """Add certificates from a set to relation data.
+
+        Adds certificate to all relations if relation_id is not provided.
+
+        Args:
+            certificates (Set[str]): A set of certificate strings in PEM format
             relation_id (int): Juju relation ID
 
         Returns:
@@ -241,7 +255,7 @@ class CertificateTransferProvides(Object):
 
         for relation in relations:
             existing_data = self._get_relation_data(relation)
-            existing_data.add(certificate)
+            existing_data.update(certificates)
             self._set_relation_data(relation, existing_data)
 
     def remove_certificate(
@@ -419,7 +433,7 @@ class CertificateTransferRequires(Object):
         """Get transferred certificates.
 
         If no relation id is given, certificates from all relations will be
-        provided in a concatonated list.
+        provided in a concatenated list.
 
         Args:
             relation_id: The id of the relation to get the certificates from.
