@@ -38,7 +38,7 @@ class TestCertificateTransferProvidesV1:
     ):
         certificate = "certificate"
         self.harness.set_leader()
-        self.harness.charm.certificate_transfer.add_certificate(certificate, relation_id)
+        self.harness.charm.certificate_transfer.add_certificates({certificate}, relation_id)
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
             "ERROR",
@@ -55,8 +55,9 @@ class TestCertificateTransferProvidesV1:
         certificate_1 = "-----begin certificate 1-----"
         certificate_2 = "-----begin certificate 2-----"
         self.harness.set_leader()
-        self.harness.charm.certificate_transfer.add_certificate(certificate_1, relation_id)
-        self.harness.charm.certificate_transfer.add_certificate(certificate_2, relation_id)
+        self.harness.charm.certificate_transfer.add_certificates(
+            {certificate_1, certificate_2}, relation_id
+        )
 
         relation_datas = [
             self.harness.get_relation_data(
@@ -95,8 +96,7 @@ class TestCertificateTransferProvidesV1:
         certificate_1 = "-----begin certificate 1-----"
         certificate_2 = "-----begin certificate 2-----"
         self.harness.set_leader()
-        self.harness.charm.certificate_transfer.add_certificate(certificate_1)
-        self.harness.charm.certificate_transfer.add_certificate(certificate_2)
+        self.harness.charm.certificate_transfer.add_certificates({certificate_1, certificate_2})
 
         self.harness.charm.certificate_transfer.remove_certificate(certificate_1, relation_id)
 
@@ -144,7 +144,7 @@ the databags except using the public methods in the provider library and use ver
             key_values={"certificates": databag_value},
         )
 
-        self.harness.charm.certificate_transfer.add_certificate("-----BEGIN CERTIFICATE-----")
+        self.harness.charm.certificate_transfer.add_certificates({"-----BEGIN CERTIFICATE-----"})
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
