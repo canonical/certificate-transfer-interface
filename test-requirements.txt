@@ -118,9 +118,9 @@ pyrfc3339==1.1
     # via
     #   juju
     #   macaroonbakery
-pyright==1.1.372
+pyright==1.1.373
     # via -r test-requirements.in
-pytest==8.3.1
+pytest==8.3.2
     # via
     #   -r test-requirements.in
     #   pytest-asyncio
@@ -135,7 +135,6 @@ pytz==2024.1
     # via pyrfc3339
 pyyaml==6.0.1
     # via
-    #   -c requirements.txt
     #   juju
     #   kubernetes
     #   pytest-operator
@@ -151,14 +150,13 @@ requests==2.32.0
     #   requests-oauthlib
 requests-oauthlib==1.3.1
     # via kubernetes
-rpds-py==0.18.0
+rpds-py==0.19.1
     # via
-    #   -c requirements.txt
     #   jsonschema
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.5.4
+ruff==0.5.5
     # via -r test-requirements.in
 six==1.16.0
     # via
@@ -176,9 +174,7 @@ traitlets==5.14.1
     #   ipython
     #   matplotlib-inline
 typing-extensions==4.12.2
-    # via
-    #   -c requirements.txt
-    #   typing-inspect
+    # via typing-inspect
 typing-inspect==0.9.0
     # via juju
 urllib3==2.2.2
@@ -188,9 +184,7 @@ urllib3==2.2.2
 wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.8.0
-    # via
-    #   -c requirements.txt
-    #   kubernetes
+    # via kubernetes
 websockets==12.0
     # via juju
 
