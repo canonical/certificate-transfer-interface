@@ -19,7 +19,7 @@ class DummyCertificateTransferProviderCharm(CharmBase):
 
     def _on_certificates_relation_joined(self, event: RelationJoinedEvent):
         certificate = "my certificate"
-        self.certificate_transfer.add_certificate(certificate)
+        self.certificate_transfer.add_certificates({certificate})
 
 
 if __name__ == "__main__":
