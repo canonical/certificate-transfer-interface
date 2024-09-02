@@ -6,7 +6,7 @@
 #
 annotated-types==0.7.0
     # via pydantic
-ops==2.15.0
+ops==2.16.0
     # via -r requirements.in
 pydantic==2.8.2
     # via -r requirements.in
