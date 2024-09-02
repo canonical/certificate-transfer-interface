@@ -118,7 +118,7 @@ pyrfc3339==1.1
     # via
     #   juju
     #   macaroonbakery
-pyright==1.1.377
+pyright==1.1.378
     # via -r test-requirements.in
 pytest==8.3.2
     # via
@@ -156,7 +156,7 @@ rpds-py==0.18.1
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.6.2
+ruff==0.6.3
     # via -r test-requirements.in
 six==1.16.0
     # via
