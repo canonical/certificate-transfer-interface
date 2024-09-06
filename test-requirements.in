@@ -6,3 +6,4 @@ pytest
 pytest-operator
 ruff
 jsonschema
+ops-scenario

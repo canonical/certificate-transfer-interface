@@ -6,13 +6,13 @@
 #
 annotated-types==0.7.0
     # via pydantic
-ops==2.16.0
+ops==2.16.1
     # via -r requirements.in
-pydantic==2.8.2
+pydantic==2.9.0
     # via -r requirements.in
-pydantic-core==2.20.1
+pydantic-core==2.23.2
     # via pydantic
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via ops
 rpds-py==0.18.1
     # via -r requirements.in
@@ -20,5 +20,7 @@ typing-extensions==4.12.2
     # via
     #   pydantic
     #   pydantic-core
+tzdata==2024.1
+    # via pydantic
 websocket-client==1.8.0
     # via ops
