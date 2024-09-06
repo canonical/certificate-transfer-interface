@@ -81,7 +81,6 @@ class TestCertificateTransferRequiresV1:
         assert isinstance(self.ctx.emitted_events[1], CertificatesAvailableEvent)
         assert self.ctx.emitted_events[1].certificates == set()
         assert self.ctx.emitted_events[1].relation_id == relation.relation_id
-        raise
 
     def test_given_certificates_in_relation_data_when_relation_removed_then_certificates_removed_event_is_emitted(  # noqa: E501
         self, caplog: pytest.LogCaptureFixture
