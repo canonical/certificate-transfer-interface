@@ -106,3 +106,39 @@ class TestCertificateTransferRequiresV1:
 
         assert action_output.success
         assert action_output.results == {"certificates": set()}
+
+    @pytest.mark.parametrize(
+        "databag_value,error_msg",
+        [
+            (
+                '"some string"',
+                """('Error parsing relation databag: ('failed to validate databag: \
+{\\'certificates\\': \\'"some string"\\'}',). ', 'Make sure not to interact with the\
+ databags except using the public methods in the provider library and use version V1.')""",
+            ),
+            (
+                "unloadable",
+                """('Error parsing relation databag: ("invalid databag contents: \
+expecting json. {'certificates': 'unloadable'}",). ', 'Make sure not to interact with \
+the databags except using the public methods in the provider library and use version V1.')""",
+            ),
+        ],
+    )
+    def test_given_broken_relation_databag_when_set_certificate_then_error_is_logged(
+        self, caplog, databag_value, error_msg
+    ):
+        relation = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"certificates": databag_value},
+        )
+        state_in = scenario.State(leader=True, relations=[relation])
+
+        self.ctx.run(relation.changed_event, state_in)
+
+        logs = [(record.levelname, record.module, record.message) for record in caplog.records]
+        assert (
+            "ERROR",
+            "certificate_transfer",
+            error_msg,
+        ) in logs
