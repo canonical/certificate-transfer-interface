@@ -4,117 +4,103 @@
 import json
 
 import pytest
-from ops import testing
+import scenario
+from ops.charm import ActionEvent, CharmBase
 
-from tests.unit.charms.certificate_transfer_interface.v1.dummy_provider_charm.src.charm import (
-    DummyCertificateTransferProviderCharm,
+from lib.charms.certificate_transfer_interface.v1.certificate_transfer import (
+    CertificateTransferProvides,
 )
 
-BASE_LIB_DIR = "lib.charms.certificate_transfer_interface.v1.certificate_transfer"
-APP_NAME = "certificate-transfer-interface-provider"
+
+class DummyCertificateTransferProviderCharm(CharmBase):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.certificate_transfer = CertificateTransferProvides(self, "certificate_transfer")
+        self.framework.observe(self.on.add_certificates_action, self._on_add_certificates_action)
+        self.framework.observe(
+            self.on.remove_certificate_action, self._on_remove_certificate_action
+        )
+
+    def _on_add_certificates_action(self, event: ActionEvent):
+        certificates = event.params.get("certificates")
+        relation_id = event.params.get("relation-id", None)
+        assert certificates
+        self.certificate_transfer.add_certificates(
+            certificates={certificates}, relation_id=int(relation_id) if relation_id else None
+        )
+
+    def _on_remove_certificate_action(self, event: ActionEvent):
+        certificate = event.params.get("certificate")
+        relation_id = event.params.get("relation-id", None)
+        assert certificate
+        self.certificate_transfer.remove_certificate(
+            certificate=certificate, relation_id=int(relation_id) if relation_id else None
+        )
 
 
 class TestCertificateTransferProvidesV1:
-    @pytest.fixture(scope="function", autouse=True)
-    def setUp(self):
-        self.unit_name = "certificate-transfer-interface-provider/0"
-        self.harness = testing.Harness(DummyCertificateTransferProviderCharm)
-        self.harness.begin()
-        yield
-        self.harness.cleanup()
-
-    def create_certificate_transfer_relation(self) -> int:
-        relation_name = "certificates"
-        remote_app_name = "certificate-transfer-requirer"
-        relation_id = self.harness.add_relation(
-            relation_name=relation_name,
-            remote_app=remote_app_name,
+    @pytest.fixture(autouse=True)
+    def context(self):
+        self.ctx = scenario.Context(
+            charm_type=DummyCertificateTransferProviderCharm,
+            meta={
+                "name": "certificate-transfer-provider",
+                "provides": {"certificate_transfer": {"interface": "certificate_transfer"}},
+            },
+            actions={
+                "add-certificates": {
+                    "params": {
+                        "certificates": {"type": "string"},
+                        "relation-id": {"type": "string"},
+                    },
+                },
+                "remove-certificate": {
+                    "params": {
+                        "certificate": {"type": "string"},
+                        "relation-id": {"type": "string"},
+                    },
+                },
+            },
         )
-        return relation_id
 
-    @pytest.mark.parametrize("relation_id", [None, 2])
-    def test_given_unavailable_relations_when_adding_certificates_then_error_is_logged(
-        self, caplog: pytest.LogCaptureFixture, relation_id
+    def test_given_no_relation_when_add_certificate_then_error_is_logged(
+        self, caplog: pytest.LogCaptureFixture
     ):
-        certificate = "certificate"
-        self.harness.set_leader()
-        self.harness.charm.certificate_transfer.add_certificates({certificate}, relation_id)
+        state_in = scenario.State(leader=True)
+        action = scenario.Action(name="add-certificates", params={"certificates": "certificate"})
+
+        self.ctx.run_action(action, state_in)
+
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
             "ERROR",
             "certificate_transfer",
-            "At least 1 matching relation ID not found with the relation name 'certificates'",
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
         ) in logs
 
-    @pytest.mark.parametrize("relation_id,expected_relations", [(None, [0, 1, 2]), (2, [2])])
-    def test_given_multiple_relations_when_adding_certificates_then_certificates_sent(
-        self, relation_id, expected_relations
+    def test_given_unrelated_relation_when_add_certificates_then_error_is_logged(
+        self, caplog: pytest.LogCaptureFixture
     ):
-        num_relations = 3
-        relation_ids = [self.create_certificate_transfer_relation() for _ in range(num_relations)]
-        certificate_1 = "-----begin certificate 1-----"
-        certificate_2 = "-----begin certificate 2-----"
-        self.harness.set_leader()
-        self.harness.charm.certificate_transfer.add_certificates(
-            {certificate_1, certificate_2}, relation_id
+        relation = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        state_in = scenario.State(leader=True, relations=[relation])
+        action = scenario.Action(
+            name="add-certificates",
+            params={
+                "certificates": "certificate",
+                "relation-id": str(relation.relation_id + 1),  # non-existent relation id
+            },
         )
 
-        relation_datas = [
-            self.harness.get_relation_data(
-                relation_id=relation_ids[i],
-                app_or_unit=APP_NAME,
-            )
-            for i in range(num_relations)
-        ]
+        self.ctx.run_action(action, state_in)
 
-        for ex in expected_relations:
-            assert relation_datas[ex].get("certificates") == json.dumps(
-                list({certificate_1, certificate_2})
-            )
-
-    @pytest.mark.parametrize("relation_id", [None, 2])
-    def test_given_unavailable_relations_when_removing_certificates_then_error_is_logged(
-        self, caplog: pytest.LogCaptureFixture, relation_id
-    ):
-        certificate = "certificate"
-        self.harness.set_leader()
-        self.harness.charm.certificate_transfer.remove_certificate(certificate, relation_id)
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
             "ERROR",
             "certificate_transfer",
-            "At least 1 matching relation ID not found with the relation name 'certificates'",
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
         ) in logs
-
-    @pytest.mark.parametrize("relation_id,expected_relations", [(None, [0, 1, 2]), (2, [2])])
-    def test_given_multiple_relations_when_removing_certificates_then_certificates_removed(
-        self, relation_id, expected_relations
-    ):
-        num_relations = 3
-        relation_ids = [self.create_certificate_transfer_relation() for _ in range(num_relations)]
-
-        certificate_1 = "-----begin certificate 1-----"
-        certificate_2 = "-----begin certificate 2-----"
-        self.harness.set_leader()
-        self.harness.charm.certificate_transfer.add_certificates({certificate_1, certificate_2})
-
-        self.harness.charm.certificate_transfer.remove_certificate(certificate_1, relation_id)
-
-        relation_datas = [
-            self.harness.get_relation_data(
-                relation_id=relation_ids[i],
-                app_or_unit="certificate-transfer-interface-provider",
-            )
-            for i in range(num_relations)
-        ]
-
-        for i in range(num_relations):
-            if i in expected_relations:
-                assert relation_datas[i].get("certificates") == json.dumps(list({certificate_2}))
-            else:
-                assert relation_datas[i].get("certificates") == json.dumps(
-                    list({certificate_1, certificate_2})
-                )
 
     @pytest.mark.parametrize(
         "databag_value,error_msg",
@@ -136,15 +122,21 @@ the databags except using the public methods in the provider library and use ver
     def test_given_broken_relation_databag_when_set_certificate_then_error_is_logged(
         self, caplog, databag_value, error_msg
     ):
-        relation_id = self.create_certificate_transfer_relation()
-        self.harness.set_leader()
-        self.harness.update_relation_data(
-            relation_id=relation_id,
-            app_or_unit=APP_NAME,
-            key_values={"certificates": databag_value},
+        relation = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": databag_value},
+        )
+        state_in = scenario.State(leader=True, relations=[relation])
+        action = scenario.Action(
+            name="add-certificates",
+            params={
+                "certificates": "certificate",
+                "relation-id": str(relation.relation_id),
+            },
         )
 
-        self.harness.charm.certificate_transfer.add_certificates({"-----BEGIN CERTIFICATE-----"})
+        self.ctx.run_action(action, state_in)
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
@@ -152,3 +144,184 @@ the databags except using the public methods in the provider library and use ver
             "certificate_transfer",
             error_msg,
         ) in logs
+
+    def test_given_multiple_relations_when_add_certificates_then_certificates_sent_to_all_relations(  # noqa: E501
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        action = scenario.Action(
+            name="add-certificates",
+            params={
+                "certificates": "certificate1, certificate2",
+            },
+        )
+
+        action_output = self.ctx.run_action(action, state_in)
+
+        assert action_output.state.relations[0].local_app_data["certificates"] == json.dumps(
+            ["certificate1, certificate2"]
+        )
+        assert action_output.state.relations[1].local_app_data["certificates"] == json.dumps(
+            ["certificate1, certificate2"]
+        )
+        assert action_output.state.relations[2].local_app_data["certificates"] == json.dumps(
+            ["certificate1, certificate2"]
+        )
+
+    def test_given_multiple_relations_when_add_certificates_with_relation_id_then_certificate_sent_to_specific_relation(  # noqa: E501
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        action = scenario.Action(
+            name="add-certificates",
+            params={
+                "certificates": "certificate1, certificate2",
+                "relation-id": str(relation_2.relation_id),
+            },
+        )
+
+        action_output = self.ctx.run_action(action, state_in)
+
+        assert "certificates" not in action_output.state.relations[0].local_app_data
+        assert action_output.state.relations[1].local_app_data["certificates"] == json.dumps(
+            ["certificate1, certificate2"]
+        )
+        assert "certificates" not in action_output.state.relations[2].local_app_data
+
+    def test_given_no_relation_when_remove_certificate_then_error_is_logged(
+        self, caplog: pytest.LogCaptureFixture
+    ):
+        state_in = scenario.State(leader=True)
+        action = scenario.Action(name="remove-certificate", params={"certificate": "certificate"})
+
+        self.ctx.run_action(action, state_in)
+
+        logs = [(record.levelname, record.module, record.message) for record in caplog.records]
+        assert (
+            "ERROR",
+            "certificate_transfer",
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
+        ) in logs
+
+    def test_given_unrelated_relation_when_remove_certificate_then_error_is_logged(
+        self, caplog: pytest.LogCaptureFixture
+    ):
+        relation = scenario.Relation(
+            endpoint="certificate_transfer", interface="certificate_transfer"
+        )
+        state_in = scenario.State(leader=True, relations=[relation])
+        action = scenario.Action(
+            name="remove-certificate",
+            params={
+                "certificate": "certificate",
+                "relation-id": str(relation.relation_id + 1),  # non-existent relation id
+            },
+        )
+
+        self.ctx.run_action(action, state_in)
+
+        logs = [(record.levelname, record.module, record.message) for record in caplog.records]
+        assert (
+            "ERROR",
+            "certificate_transfer",
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
+        ) in logs
+
+    def test_given_multiple_relations_when_remove_certificate_then_certificate_removed_from_all_relations(  # noqa: E501
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        action = scenario.Action(
+            name="remove-certificate",
+            params={
+                "certificate": "certificate1",
+            },
+        )
+
+        action_output = self.ctx.run_action(action, state_in)
+
+        assert action_output.state.relations[0].local_app_data["certificates"] == json.dumps(
+            ["certificate2"]
+        )
+        assert action_output.state.relations[1].local_app_data["certificates"] == json.dumps(
+            ["certificate2"]
+        )
+        assert action_output.state.relations[2].local_app_data["certificates"] == json.dumps(
+            ["certificate2"]
+        )
+
+    def test_given_multiple_relations_when_remove_certificate_with_relation_id_then_certificate_removed_from_specific_relation(  # noqa: E501
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        action = scenario.Action(
+            name="remove-certificate",
+            params={
+                "certificate": "certificate1",
+                "relation-id": str(relation_2.relation_id),
+            },
+        )
+
+        action_output = self.ctx.run_action(action, state_in)
+
+        assert action_output.state.relations[0].local_app_data["certificates"] == json.dumps(
+            ["certificate1", "certificate2"]
+        )
+        assert action_output.state.relations[1].local_app_data["certificates"] == json.dumps(
+            ["certificate2"]
+        )
+        assert action_output.state.relations[2].local_app_data["certificates"] == json.dumps(
+            ["certificate1", "certificate2"]
+        )
