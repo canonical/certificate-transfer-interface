@@ -40,7 +40,7 @@ google-auth==2.34.0
     # via kubernetes
 hvac==2.3.0
     # via juju
-idna==3.8
+idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
@@ -80,13 +80,13 @@ ops==2.16.1
     # via
     #   -c requirements.txt
     #   ops-scenario
-ops-scenario==6.1.6
+ops-scenario==7.0.2
     # via -r test-requirements.in
 packaging==24.1
     # via
     #   juju
     #   pytest
-paramiko==3.4.1
+paramiko==3.5.0
     # via juju
 parso==0.8.4
     # via jedi
@@ -96,18 +96,18 @@ pluggy==1.5.0
     # via pytest
 prompt-toolkit==3.0.47
     # via ipython
-protobuf==5.28.0
+protobuf==5.28.1
     # via macaroonbakery
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pyasn1==0.6.0
+pyasn1==0.6.1
     # via
     #   juju
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.4.0
+pyasn1-modules==0.4.1
     # via google-auth
 pycparser==2.22
     # via cffi
@@ -124,9 +124,9 @@ pyrfc3339==1.1
     # via
     #   juju
     #   macaroonbakery
-pyright==1.1.379
+pyright==1.1.380
     # via -r test-requirements.in
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r test-requirements.in
     #   pytest-asyncio
@@ -137,7 +137,7 @@ pytest-operator==0.36.0
     # via -r test-requirements.in
 python-dateutil==2.9.0.post0
     # via kubernetes
-pytz==2024.1
+pytz==2024.2
     # via pyrfc3339
 pyyaml==6.0.2
     # via
@@ -166,7 +166,7 @@ rpds-py==0.18.1
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.6.4
+ruff==0.6.5
     # via -r test-requirements.in
 six==1.16.0
     # via
@@ -189,7 +189,7 @@ typing-extensions==4.12.2
     #   typing-inspect
 typing-inspect==0.9.0
     # via juju
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   kubernetes
     #   requests
