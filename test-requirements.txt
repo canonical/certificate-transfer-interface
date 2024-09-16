@@ -76,11 +76,9 @@ oauthlib==3.2.2
     # via
     #   kubernetes
     #   requests-oauthlib
-ops==2.16.1
-    # via
-    #   -c requirements.txt
-    #   ops-scenario
-ops-scenario==6.1.6
+ops==2.16.0
+    # via ops-scenario
+ops-scenario==6.1.7
     # via -r test-requirements.in
 packaging==24.1
     # via
@@ -124,9 +122,9 @@ pyrfc3339==1.1
     # via
     #   juju
     #   macaroonbakery
-pyright==1.1.379
+pyright==1.1.380
     # via -r test-requirements.in
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r test-requirements.in
     #   pytest-asyncio
@@ -141,7 +139,6 @@ pytz==2024.1
     # via pyrfc3339
 pyyaml==6.0.2
     # via
-    #   -c requirements.txt
     #   juju
     #   kubernetes
     #   ops
@@ -161,12 +158,11 @@ requests-oauthlib==2.0.0
     # via kubernetes
 rpds-py==0.18.1
     # via
-    #   -c requirements.txt
     #   jsonschema
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.6.4
+ruff==0.6.5
     # via -r test-requirements.in
 six==1.16.0
     # via
@@ -184,9 +180,7 @@ traitlets==5.14.3
     #   ipython
     #   matplotlib-inline
 typing-extensions==4.12.2
-    # via
-    #   -c requirements.txt
-    #   typing-inspect
+    # via typing-inspect
 typing-inspect==0.9.0
     # via juju
 urllib3==2.2.2
@@ -197,7 +191,6 @@ wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.8.0
     # via
-    #   -c requirements.txt
     #   kubernetes
     #   ops
 websockets==13.0.1
