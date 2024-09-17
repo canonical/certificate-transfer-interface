@@ -58,12 +58,12 @@ class TestCertificateTransferRequiresV1:
         )
         state_in = scenario.State(relations=[relation])
 
-        self.ctx.run(relation.changed_event, state_in)
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
 
         assert len(self.ctx.emitted_events) == 2
         assert isinstance(self.ctx.emitted_events[1], CertificatesAvailableEvent)
         assert self.ctx.emitted_events[1].certificates == {"cert1"}
-        assert self.ctx.emitted_events[1].relation_id == relation.relation_id
+        assert self.ctx.emitted_events[1].relation_id == relation.id
 
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_certificate_available_event_emitted_with_empty_cert(  # noqa: E501
         self, caplog
@@ -75,12 +75,12 @@ class TestCertificateTransferRequiresV1:
         )
         state_in = scenario.State(relations=[relation])
 
-        self.ctx.run(relation.changed_event, state_in)
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
 
         assert len(self.ctx.emitted_events) == 2
         assert isinstance(self.ctx.emitted_events[1], CertificatesAvailableEvent)
         assert self.ctx.emitted_events[1].certificates == set()
-        assert self.ctx.emitted_events[1].relation_id == relation.relation_id
+        assert self.ctx.emitted_events[1].relation_id == relation.id
 
     def test_given_certificates_in_relation_data_when_relation_removed_then_certificates_removed_event_is_emitted(  # noqa: E501
         self, caplog: pytest.LogCaptureFixture
@@ -92,20 +92,21 @@ class TestCertificateTransferRequiresV1:
         )
         state_in = scenario.State(relations=[relation])
 
-        self.ctx.run(relation.broken_event, state_in)
+        self.ctx.run(self.ctx.on.relation_broken(relation), state_in)
 
         assert len(self.ctx.emitted_events) == 2
         assert isinstance(self.ctx.emitted_events[1], CertificatesRemovedEvent)
-        assert self.ctx.emitted_events[1].relation_id == relation.relation_id
+        assert self.ctx.emitted_events[1].relation_id == relation.id
 
     def test_given_no_relation_available_when_get_all_certificates_then_empty_set_returned(self):
         state_in = scenario.State()
-        action = scenario.Action(name="get-all-certificates")
 
-        action_output = self.ctx.run_action(action, state_in)
+        self.ctx.run(
+            self.ctx.on.action("get-all-certificates"),
+            state_in,
+        )
 
-        assert action_output.success
-        assert action_output.results == {"certificates": set()}
+        assert self.ctx.action_results == {"certificates": set()}
 
     @pytest.mark.parametrize(
         "databag_value,error_msg",
@@ -134,7 +135,7 @@ the databags except using the public methods in the provider library and use ver
         )
         state_in = scenario.State(leader=True, relations=[relation])
 
-        self.ctx.run(relation.changed_event, state_in)
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
