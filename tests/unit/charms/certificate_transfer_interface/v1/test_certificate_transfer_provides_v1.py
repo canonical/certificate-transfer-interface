@@ -81,7 +81,6 @@ class TestCertificateTransferProvidesV1:
             "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
         ) in logs
 
-    @pytest.mark.skip(reason="https://github.com/canonical/ops-scenario/issues/193")
     def test_given_unrelated_relation_when_add_certificates_then_error_is_logged(
         self, caplog: pytest.LogCaptureFixture
     ):
@@ -245,7 +244,6 @@ the databags except using the public methods in the provider library and use ver
             "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
         ) in logs
 
-    @pytest.mark.skip(reason="https://github.com/canonical/ops-scenario/issues/193")
     def test_given_unrelated_relation_when_remove_certificate_then_error_is_logged(
         self, caplog: pytest.LogCaptureFixture
     ):
