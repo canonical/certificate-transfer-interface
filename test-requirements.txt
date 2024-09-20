@@ -34,9 +34,11 @@ decorator==5.1.1
     # via
     #   ipdb
     #   ipython
+durationpy==0.7
+    # via kubernetes
 executing==2.1.0
     # via stack-data
-google-auth==2.34.0
+google-auth==2.35.0
     # via kubernetes
 hvac==2.3.0
     # via juju
@@ -60,7 +62,7 @@ juju==3.5.2.0
     # via
     #   -r test-requirements.in
     #   pytest-operator
-kubernetes==30.1.0
+kubernetes==31.0.0
     # via juju
 macaroonbakery==1.3.4
     # via juju
@@ -80,7 +82,7 @@ ops==2.16.1
     # via
     #   -c requirements.txt
     #   ops-scenario
-ops-scenario==7.0.2
+ops-scenario==7.0.5
     # via -r test-requirements.in
 packaging==24.1
     # via
@@ -96,7 +98,7 @@ pluggy==1.5.0
     # via pytest
 prompt-toolkit==3.0.47
     # via ipython
-protobuf==5.28.1
+protobuf==5.28.2
     # via macaroonbakery
 ptyprocess==0.7.0
     # via pexpect
@@ -124,7 +126,7 @@ pyrfc3339==1.1
     # via
     #   juju
     #   macaroonbakery
-pyright==1.1.380
+pyright==1.1.381
     # via -r test-requirements.in
 pytest==8.3.3
     # via
@@ -166,7 +168,7 @@ rpds-py==0.18.1
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.6.5
+ruff==0.6.6
     # via -r test-requirements.in
 six==1.16.0
     # via
