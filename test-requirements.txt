@@ -79,9 +79,7 @@ oauthlib==3.2.2
     #   kubernetes
     #   requests-oauthlib
 ops==2.16.1
-    # via
-    #   -c requirements.txt
-    #   ops-scenario
+    # via ops-scenario
 ops-scenario==7.0.5
     # via -r test-requirements.in
 packaging==24.1
@@ -143,7 +141,6 @@ pytz==2024.2
     # via pyrfc3339
 pyyaml==6.0.2
     # via
-    #   -c requirements.txt
     #   juju
     #   kubernetes
     #   ops
@@ -163,12 +160,11 @@ requests-oauthlib==2.0.0
     # via kubernetes
 rpds-py==0.18.1
     # via
-    #   -c requirements.txt
     #   jsonschema
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.6.6
+ruff==0.6.7
     # via -r test-requirements.in
 six==1.16.0
     # via
@@ -186,9 +182,7 @@ traitlets==5.14.3
     #   ipython
     #   matplotlib-inline
 typing-extensions==4.12.2
-    # via
-    #   -c requirements.txt
-    #   typing-inspect
+    # via typing-inspect
 typing-inspect==0.9.0
     # via juju
 urllib3==2.2.3
@@ -199,7 +193,6 @@ wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.8.0
     # via
-    #   -c requirements.txt
     #   kubernetes
     #   ops
 websockets==13.0.1
