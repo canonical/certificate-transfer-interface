@@ -26,7 +26,7 @@ charset-normalizer==3.3.2
     # via requests
 codespell==2.3.0
     # via -r test-requirements.in
-coverage[toml]==7.6.1
+coverage[toml]==7.6.3
     # via -r test-requirements.in
 cryptography==43.0.1
     # via paramiko
@@ -124,7 +124,7 @@ pyrfc3339==1.1
     # via
     #   juju
     #   macaroonbakery
-pyright==1.1.383
+pyright==1.1.384
     # via -r test-requirements.in
 pytest==8.3.3
     # via
@@ -133,7 +133,7 @@ pytest==8.3.3
     #   pytest-operator
 pytest-asyncio==0.21.2
     # via pytest-operator
-pytest-operator==0.37.0
+pytest-operator==0.38.0
     # via -r test-requirements.in
 python-dateutil==2.9.0.post0
     # via kubernetes
