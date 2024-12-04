@@ -139,6 +139,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
         relation = self.harness.model.get_relation(
             relation_name="certificates", relation_id=relation_id
         )
+        assert relation
         assert not self.harness.charm.certificate_transfer.is_ready(relation)
 
     def test_given_valid_relation_data_when_is_ready_then_true_is_returned(self):
@@ -159,4 +160,5 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
             app_or_unit="certificate-transfer-provider",
             key_values=key_values,
         )
+        assert relation
         assert self.harness.charm.certificate_transfer.is_ready(relation)

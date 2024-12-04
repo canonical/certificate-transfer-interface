@@ -21,9 +21,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         self.framework.observe(
             self.on.get_all_certificates_action, self._on_get_all_certificates_action
         )
-        self.framework.observe(
-            self.on.is_ready_action, self._on_is_ready_action
-        )
+        self.framework.observe(self.on.is_ready_action, self._on_is_ready_action)
 
     def _on_get_all_certificates_action(self, event: ActionEvent):
         relation_id = event.params.get("relation-id", None)
@@ -37,6 +35,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         relation = self.model.get_relation(
             relation_name="certificate_transfer", relation_id=int(relation_id)
         )
+        assert relation
         is_ready = self.certificate_transfer.is_ready(relation)
         event.set_results({"is-ready": is_ready})
 
@@ -172,7 +171,7 @@ the databags except using the public methods in the provider library and use ver
             self.ctx.on.action("is-ready", params={"relation-id": str(relation.id)}),
             state_in,
         )
-
+        assert self.ctx.action_results
         assert not self.ctx.action_results["is-ready"]
 
     def test_given_valid_relation_data_when_is_ready_then_true_is_returned(self):
@@ -187,5 +186,5 @@ the databags except using the public methods in the provider library and use ver
             self.ctx.on.action("is-ready", params={"relation-id": str(relation.id)}),
             state_in,
         )
-
+        assert self.ctx.action_results
         assert self.ctx.action_results["is-ready"]

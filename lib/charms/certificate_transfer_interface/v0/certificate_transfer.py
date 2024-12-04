@@ -394,11 +394,9 @@ class CertificateTransferRequires(Object):
         self.on.certificate_removed.emit(relation_id=event.relation.id)
 
     def is_ready(self, relation: Relation) -> bool:
-        """Checks if the relation is ready by checking that it has valid relation data."""
+        """Check if the relation is ready by checking that it has valid relation data."""
         relation_data = _load_relation_data(relation.data[relation.app])
         if not self._relation_data_is_valid(relation_data):
-            logger.warning(
-                f"Provider relation data did not pass JSON Schema validation: "
-            )
+            logger.warning("Provider relation data did not pass JSON Schema validation: ")
             return False
         return True
