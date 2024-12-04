@@ -124,3 +124,39 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
         self.harness.remove_relation(relation_id)
 
         patch_on_certificate_removed.assert_called()
+
+    def test_given_invalid_relation_data_when_is_ready_then_false_is_returned(self):
+        remote_unit_name = "certificate-transfer-provider/0"
+        relation_id = self.create_certificate_transfer_relation()
+        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
+        key_values = {
+            "banana": "whatever banana content",
+            "pizza": "whatever pizza content",
+        }
+        self.harness.update_relation_data(
+            relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
+        )
+        relation = self.harness.model.get_relation(
+            relation_name="certificates", relation_id=relation_id
+        )
+        assert not self.harness.charm.certificate_transfer.is_ready(relation)
+
+    def test_given_valid_relation_data_when_is_ready_then_true_is_returned(self):
+        relation_id = self.create_certificate_transfer_relation()
+        relation = self.harness.model.get_relation(
+            relation_name="certificates", relation_id=relation_id
+        )
+        self.harness.add_relation_unit(
+            relation_id=relation_id, remote_unit_name="certificate-transfer-provider/0"
+        )
+        certificate = "whatever certificate"
+        key_values = {
+            "certificate": certificate,
+            "relation_id": str(relation_id),
+        }
+        self.harness.update_relation_data(
+            relation_id=relation_id,
+            app_or_unit="certificate-transfer-provider",
+            key_values=key_values,
+        )
+        assert self.harness.charm.certificate_transfer.is_ready(relation)
