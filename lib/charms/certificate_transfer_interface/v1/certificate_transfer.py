@@ -428,6 +428,15 @@ class CertificateTransferRequires(Object):
             result = result.union(data)
         return result
 
+    def is_ready(self, relation: Relation) -> bool:
+        """Check if the relation is ready by checking that it has valid relation data."""
+        databag = relation.data[relation.app]
+        try:
+            ProviderApplicationData().load(databag)
+            return True
+        except DataValidationError:
+            return False
+
     def _get_relation_data(self, relation: Relation) -> Set[str]:
         """Get the given relation data."""
         databag = relation.data[relation.app]
