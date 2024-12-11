@@ -63,7 +63,7 @@ class TestCertificateTransferRequiresV1:
             },
         )
 
-    def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
+    def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
         self,
     ):
         relation = scenario.Relation(
@@ -80,7 +80,7 @@ class TestCertificateTransferRequiresV1:
         assert self.ctx.emitted_events[1].certificates == {"cert1"}
         assert self.ctx.emitted_events[1].relation_id == relation.id
 
-    def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_certificate_available_event_emitted_with_empty_cert(  # noqa: E501
+    def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_certificate_available_event_emitted_with_empty_cert(
         self, caplog
     ):
         relation = scenario.Relation(
@@ -97,7 +97,7 @@ class TestCertificateTransferRequiresV1:
         assert self.ctx.emitted_events[1].certificates == set()
         assert self.ctx.emitted_events[1].relation_id == relation.id
 
-    def test_given_certificates_in_relation_data_when_relation_removed_then_certificates_removed_event_is_emitted(  # noqa: E501
+    def test_given_certificates_in_relation_data_when_relation_removed_then_certificates_removed_event_is_emitted(
         self, caplog: pytest.LogCaptureFixture
     ):
         relation = scenario.Relation(
