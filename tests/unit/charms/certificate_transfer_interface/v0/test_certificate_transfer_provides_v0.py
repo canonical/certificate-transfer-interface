@@ -29,7 +29,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
         )
         return relation_id
 
-    def test_given_certificate_transfer_relation_exists_when_set_certificate_then_certificate_added_to_relation_data(  # noqa: E501
+    def test_given_certificate_transfer_relation_exists_when_set_certificate_then_certificate_added_to_relation_data(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -50,7 +50,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
         self.assertEqual(relation_data["ca"], ca)
         self.assertEqual(relation_data["chain"], json.dumps(chain))
 
-    def test_given_invalid_relation_id_and_certificate_transfer_relation_exists_when_set_certificate_then_raises_key_error(  # noqa: E501
+    def test_given_invalid_relation_id_and_certificate_transfer_relation_exists_when_set_certificate_then_raises_key_error(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -66,7 +66,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
                 certificate=certificate, ca=ca, chain=chain, relation_id=invalid_relation_id
             )
 
-    def test_given_no_certificate_transfer_relation_and_invalid_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(  # noqa: E501
+    def test_given_no_certificate_transfer_relation_and_invalid_relation_id_is_provided_when_set_certificate_then_key_error_is_raised(
         self,
     ):
         certificate = "whatever cert"
@@ -79,7 +79,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
                 certificate=certificate, ca=ca, chain=chain, relation_id=invalid_relation_id
             )
 
-    def test_given_certificate_transfer_relation_exists_when_remove_certificate_then_certificate_removed_from_relation_data(  # noqa: E501
+    def test_given_certificate_transfer_relation_exists_when_remove_certificate_then_certificate_removed_from_relation_data(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -104,7 +104,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
         assert "ca" not in relation_data
         assert "chain" not in relation_data
 
-    def test_given_only_certificate_in_relation_data_when_remove_certificate_then_certificate_removed_from_relation_data(  # noqa: E501
+    def test_given_only_certificate_in_relation_data_when_remove_certificate_then_certificate_removed_from_relation_data(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -125,7 +125,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
         )
         assert "certificate" not in relation_data
 
-    def test_given_certificate_transfer_relation_exists_and_invalid_relation_id_provided_when_remove_certificate_then_data_exists_in_relation(  # noqa: E501
+    def test_given_certificate_transfer_relation_exists_and_invalid_relation_id_provided_when_remove_certificate_then_data_exists_in_relation(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -145,7 +145,7 @@ class TestCertificateTransferProvidesV0(unittest.TestCase):
         assert "ca" in relation_data
         assert "chain" in relation_data
 
-    def test_given_no_data_in_certificate_transfer_relation_when_remove_certificate_then_log_is_emitted(  # noqa: E501
+    def test_given_no_data_in_certificate_transfer_relation_when_remove_certificate_then_log_is_emitted(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()

@@ -12,7 +12,7 @@ from tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.sr
 )
 
 BASE_LIB_DIR = "lib.charms.certificate_transfer_interface.v0.certificate_transfer"
-BASE_CHARM_DIR = "tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateTransferRequirerCharm"  # noqa: E501
+BASE_CHARM_DIR = "tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateTransferRequirerCharm"
 
 
 class TestCertificateTransferRequiresV0(unittest.TestCase):
@@ -31,8 +31,8 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
         )
         return relation_id
 
-    @patch(f"{BASE_CHARM_DIR}._on_certificate_available")  # noqa: E501
-    def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
+    @patch(f"{BASE_CHARM_DIR}._on_certificate_available")
+    def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
         self, patch_certificate_available
     ):
         remote_unit_name = "certificate-transfer-provider/0"
@@ -59,8 +59,8 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
         assert certificate_available_event.chain == chain
         assert certificate_available_event.relation_id == relation_id
 
-    @patch(f"{BASE_CHARM_DIR}._on_certificate_available")  # noqa: E501
-    def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(  # noqa: E501
+    @patch(f"{BASE_CHARM_DIR}._on_certificate_available")
+    def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
         self, patch_certificate_available
     ):
         remote_unit_name = "certificate-transfer-provider/0"
@@ -82,7 +82,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
         assert certificate_available_event.chain is None
         assert certificate_available_event.relation_id == relation_id
 
-    def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_warning_log_is_emitted(  # noqa: E501
+    def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_warning_log_is_emitted(
         self,
     ):
         remote_unit_name = "certificate-transfer-provider/0"
@@ -100,7 +100,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
 
         assert "Provider relation data did not pass JSON Schema validation" in log.output[0]
 
-    def test_given_provider_uses_application_relation_data_when_relation_changed_then_log_is_emitted(  # noqa: E501
+    def test_given_provider_uses_application_relation_data_when_relation_changed_then_log_is_emitted(
         self,
     ):
         relation_id = self.create_certificate_transfer_relation()
@@ -115,7 +115,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
         assert "No remote unit in relation" in log.output[0]
 
     @patch(f"{BASE_CHARM_DIR}._on_certificate_removed")
-    def test_given_certificate_in_relation_data_when_relation_broken_then_certificate_removed_event_is_emitted(  # noqa: E501
+    def test_given_certificate_in_relation_data_when_relation_broken_then_certificate_removed_event_is_emitted(
         self, patch_on_certificate_removed
     ):
         remote_unit_name = "certificate-transfer-provider/0"

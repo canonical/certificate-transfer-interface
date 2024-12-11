@@ -78,7 +78,7 @@ class TestCertificateTransferProvidesV1:
         assert (
             "ERROR",
             "certificate_transfer",
-            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
 
     def test_given_unrelated_relation_when_add_certificates_then_error_is_logged(
@@ -104,7 +104,7 @@ class TestCertificateTransferProvidesV1:
         assert (
             "ERROR",
             "certificate_transfer",
-            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
 
     @pytest.mark.parametrize(
@@ -152,7 +152,7 @@ the databags except using the public methods in the provider library and use ver
             error_msg,
         ) in logs
 
-    def test_given_multiple_relations_when_add_certificates_then_certificates_sent_to_all_relations(  # noqa: E501
+    def test_given_multiple_relations_when_add_certificates_then_certificates_sent_to_all_relations(
         self,
     ):
         relation_1 = scenario.Relation(
@@ -189,7 +189,7 @@ the databags except using the public methods in the provider library and use ver
         assert set(json.loads(certificates_relation_2)) == {"certificate1", "certificate2"}
         assert set(json.loads(certificates_relation_3)) == {"certificate1", "certificate2"}
 
-    def test_given_multiple_relations_when_add_certificates_with_relation_id_then_certificate_sent_to_specific_relation(  # noqa: E501
+    def test_given_multiple_relations_when_add_certificates_with_relation_id_then_certificate_sent_to_specific_relation(
         self,
     ):
         relation_1 = scenario.Relation(
@@ -241,7 +241,7 @@ the databags except using the public methods in the provider library and use ver
         assert (
             "ERROR",
             "certificate_transfer",
-            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
 
     def test_given_unrelated_relation_when_remove_certificate_then_error_is_logged(
@@ -267,10 +267,10 @@ the databags except using the public methods in the provider library and use ver
         assert (
             "ERROR",
             "certificate_transfer",
-            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",  # noqa: E501
+            "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
 
-    def test_given_multiple_relations_when_remove_certificate_then_certificate_removed_from_all_relations(  # noqa: E501
+    def test_given_multiple_relations_when_remove_certificate_then_certificate_removed_from_all_relations(
         self,
     ):
         relation_1 = scenario.Relation(
@@ -313,7 +313,7 @@ the databags except using the public methods in the provider library and use ver
         assert set(json.loads(certificates_relation_2)) == {"certificate2"}
         assert set(json.loads(certificates_relation_3)) == {"certificate2"}
 
-    def test_given_multiple_relations_when_remove_certificate_with_relation_id_then_certificate_removed_from_specific_relation(  # noqa: E501
+    def test_given_multiple_relations_when_remove_certificate_with_relation_id_then_certificate_removed_from_specific_relation(
         self,
     ):
         relation_1 = scenario.Relation(
