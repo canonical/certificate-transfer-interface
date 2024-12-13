@@ -2,6 +2,7 @@
 # See LICENSE file for licensing details.
 
 import json
+from typing import Any
 
 import pytest
 import scenario
@@ -13,7 +14,7 @@ from lib.charms.certificate_transfer_interface.v1.certificate_transfer import (
 
 
 class DummyCertificateTransferProviderCharm(CharmBase):
-    def __init__(self, *args):
+    def __init__(self, *args: Any):
         super().__init__(*args)
         self.certificate_transfer = CertificateTransferProvides(self, "certificate_transfer")
         self.framework.observe(self.on.add_certificates_action, self._on_add_certificates_action)
@@ -125,7 +126,7 @@ the databags except using the public methods in the provider library and use ver
         ],
     )
     def test_given_broken_relation_databag_when_set_certificate_then_error_is_logged(
-        self, caplog, databag_value, error_msg
+        self, caplog: pytest.LogCaptureFixture, databag_value: str, error_msg: str
     ):
         relation = scenario.Relation(
             endpoint="certificate_transfer",

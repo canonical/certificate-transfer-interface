@@ -2,6 +2,7 @@
 # See LICENSE file for licensing details.
 
 import json
+from typing import Any
 
 import pytest
 import scenario
@@ -15,7 +16,7 @@ from lib.charms.certificate_transfer_interface.v1.certificate_transfer import (
 
 
 class DummyCertificateTransferRequirerCharm(CharmBase):
-    def __init__(self, *args):
+    def __init__(self, *args: Any):
         super().__init__(*args)
         self.certificate_transfer = CertificateTransferRequires(self, "certificate_transfer")
         self.framework.observe(
@@ -81,7 +82,7 @@ class TestCertificateTransferRequiresV1:
         assert self.ctx.emitted_events[1].relation_id == relation.id
 
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_certificate_available_event_emitted_with_empty_cert(
-        self, caplog
+        self, caplog: pytest.LogCaptureFixture
     ):
         relation = scenario.Relation(
             endpoint="certificate_transfer",
@@ -141,7 +142,7 @@ the databags except using the public methods in the provider library and use ver
         ],
     )
     def test_given_broken_relation_databag_when_set_certificate_then_error_is_logged(
-        self, caplog, databag_value, error_msg
+        self, caplog: pytest.LogCaptureFixture, databag_value: str, error_msg: str
     ):
         relation = scenario.Relation(
             endpoint="certificate_transfer",

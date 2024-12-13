@@ -4,6 +4,8 @@
 
 """Placeholder charm."""
 
+from typing import Any
+
 from ops.charm import CharmBase
 from ops.main import main
 
@@ -11,7 +13,7 @@ from ops.main import main
 class PlaceholderCharm(CharmBase):
     """Placeholder charm."""
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any):
         super().__init__(*args)
 
 
