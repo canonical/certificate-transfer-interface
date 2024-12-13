@@ -1,6 +1,8 @@
 # Copyright 2023 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+from typing import Any
+
 from ops.charm import CharmBase, RelationJoinedEvent
 from ops.main import main
 
@@ -10,7 +12,7 @@ from lib.charms.certificate_transfer_interface.v0.certificate_transfer import (
 
 
 class DummyCertificateTransferProviderCharm(CharmBase):
-    def __init__(self, *args):
+    def __init__(self, *args: Any):
         super().__init__(*args)
         self.certificate_transfer = CertificateTransferProvides(self, "certificates")
         self.framework.observe(

@@ -3,7 +3,7 @@
 
 import json
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from ops import testing
 
@@ -33,7 +33,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
 
     @patch(f"{BASE_CHARM_DIR}._on_certificate_available")
     def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
-        self, patch_certificate_available
+        self, mock_certificate_available: MagicMock
     ):
         remote_unit_name = "certificate-transfer-provider/0"
         relation_id = self.create_certificate_transfer_relation()
@@ -52,7 +52,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
             relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
         )
 
-        args, _ = patch_certificate_available.call_args
+        args, _ = mock_certificate_available.call_args
         certificate_available_event = args[0]
         assert certificate_available_event.certificate == certificate
         assert certificate_available_event.ca == ca
@@ -61,7 +61,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
 
     @patch(f"{BASE_CHARM_DIR}._on_certificate_available")
     def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
-        self, patch_certificate_available
+        self, mock_certificate_available: MagicMock
     ):
         remote_unit_name = "certificate-transfer-provider/0"
         relation_id = self.create_certificate_transfer_relation()
@@ -75,7 +75,7 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
             relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
         )
 
-        args, _ = patch_certificate_available.call_args
+        args, _ = mock_certificate_available.call_args
         certificate_available_event = args[0]
         assert certificate_available_event.certificate == certificate
         assert certificate_available_event.ca is None
@@ -116,14 +116,15 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
 
     @patch(f"{BASE_CHARM_DIR}._on_certificate_removed")
     def test_given_certificate_in_relation_data_when_relation_broken_then_certificate_removed_event_is_emitted(
-        self, patch_on_certificate_removed
+        self,
+        mock_on_certificate_removed: MagicMock,
     ):
         remote_unit_name = "certificate-transfer-provider/0"
         relation_id = self.create_certificate_transfer_relation()
         self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         self.harness.remove_relation(relation_id)
 
-        patch_on_certificate_removed.assert_called()
+        mock_on_certificate_removed.assert_called()
 
     def test_given_invalid_relation_data_when_is_ready_then_false_is_returned(self):
         remote_unit_name = "certificate-transfer-provider/0"
