@@ -162,7 +162,7 @@ rpds-py==0.18.1
     #   referencing
 rsa==4.9
     # via google-auth
-ruff==0.8.2
+ruff==0.8.3
     # via -r test-requirements.in
 six==1.16.0
     # via
