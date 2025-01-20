@@ -16,13 +16,13 @@ concurrency:
 
 jobs:
   lint-report:
-    uses: ./.github/workflows/lint-report.yaml
+      uses: canonical/identity-credentials-workflows/.github/workflows/lint-report.yaml@v0
 
   static-analysis:
-    uses: ./.github/workflows/static-analysis.yaml
+    uses: canonical/identity-credentials-workflows/.github/workflows/static-analysis.yaml@v0
 
   unit-tests-with-coverage:
-    uses: ./.github/workflows/unit-test.yaml
+    uses: canonical/identity-credentials-workflows/.github/workflows/unit-test.yaml@v0
 
   build:
     name: Build charm
@@ -51,13 +51,15 @@ jobs:
       - unit-tests-with-coverage
       - build
     if: ${{ github.ref_name == 'main' }}
-    uses: ./.github/workflows/publish-charm.yaml
+    uses: canonical/identity-credentials-workflows/.github/workflows/publish-charm.yaml@v0
     secrets:
       CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
-  
+    with:
+      track-name: latest
+
   publish-lib:
     name: Publish Lib
-    needs: 
+    needs:
       - publish-charm
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/publish-lib.yaml
