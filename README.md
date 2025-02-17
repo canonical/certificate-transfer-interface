@@ -1,5 +1,5 @@
 # certificate-transfer-interface
-![CI Status](https://github.com/canonical/certificate-transfer-interface/actions/workflows/main.yaml/badge.svg)
+![CI Status](https://github.com/canonical/certificate-transfer-interface/actions/workflows/main.yml/badge.svg)
 [![CharmHub Badge](https://charmhub.io/certificate-transfer-interface/badge.svg)](https://charmhub.io/certificate-transfer-interface)
 
 This project contains libraries for use by providers and requirers of the `certificate-transfer` integration. 
