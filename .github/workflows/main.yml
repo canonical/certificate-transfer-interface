@@ -62,12 +62,3 @@ jobs:
       CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
     with:
       track-name: latest
-
-  publish-lib:
-    name: Publish Lib
-    needs:
-      - publish-charm
-    if: ${{ github.ref_name == 'main' }}
-    uses: ./.github/workflows/publish-lib.yaml
-    secrets:
-      CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
