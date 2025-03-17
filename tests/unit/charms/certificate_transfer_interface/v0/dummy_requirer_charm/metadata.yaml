@@ -9,3 +9,9 @@ summary: Dummy certificate-transfer-interface-requirer.
 requires:
   certificates:
     interface: certificate_transfer
+
+actions:
+  is-ready:
+    params:
+      relation-id:
+        type: string
