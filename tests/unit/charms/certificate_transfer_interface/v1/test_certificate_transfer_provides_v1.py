@@ -189,6 +189,9 @@ the databags except using the public methods in the provider library and use ver
         assert set(json.loads(certificates_relation_1)) == {"certificate1", "certificate2"}
         assert set(json.loads(certificates_relation_2)) == {"certificate1", "certificate2"}
         assert set(json.loads(certificates_relation_3)) == {"certificate1", "certificate2"}
+        assert state_out.get_relation(relation_1.id).local_app_data["version"] == "1"
+        assert state_out.get_relation(relation_2.id).local_app_data["version"] == "1"
+        assert state_out.get_relation(relation_3.id).local_app_data["version"] == "1"
 
     def test_given_multiple_relations_when_add_certificates_with_relation_id_then_certificate_sent_to_specific_relation(
         self,
@@ -217,13 +220,16 @@ the databags except using the public methods in the provider library and use ver
 
         relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
         assert "certificates" not in relation_1_app_data
+        assert "version" not in relation_1_app_data
         relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
         assert set(json.loads(relation_2_app_data["certificates"])) == {
             "certificate1",
             "certificate2",
         }
+        assert state_out.get_relation(relation_2.id).local_app_data["version"] == "1"
         relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
         assert "certificates" not in relation_3_app_data
+        assert "version" not in relation_3_app_data
 
     def test_given_no_relation_when_remove_certificate_then_error_is_logged(
         self, caplog: pytest.LogCaptureFixture
