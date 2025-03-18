@@ -3,41 +3,58 @@
 
 import json
 import unittest
-from unittest.mock import MagicMock, patch
+from pathlib import Path
 
-from ops import testing
+import pytest
+import yaml
+from ops.testing import Context, JujuLogLine, Relation, State
 
+from lib.charms.certificate_transfer_interface.v0.certificate_transfer import (
+    CertificateAvailableEvent,
+    CertificateRemovedEvent,
+)
 from tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm import (
     DummyCertificateTransferRequirerCharm,
 )
 
+APP_NAME = "certificates-transfer-interface-requirer"
 BASE_LIB_DIR = "lib.charms.certificate_transfer_interface.v0.certificate_transfer"
 BASE_CHARM_DIR = "tests.unit.charms.certificate_transfer_interface.v0.dummy_requirer_charm.src.charm.DummyCertificateTransferRequirerCharm"
 
+METADATA = yaml.safe_load(
+    Path(
+        "tests/unit/charms/certificate_transfer_interface/v0/dummy_requirer_charm/metadata.yaml"
+    ).read_text()
+)
+ENDPOINT = "certificates"
+INTERFACE = "certificate_transfer"
+
 
 class TestCertificateTransferRequiresV0(unittest.TestCase):
-    def setUp(self):
-        self.unit_name = "certificate-transfer-interface-requirer/0"
-        self.harness = testing.Harness(DummyCertificateTransferRequirerCharm)
-        self.addCleanup(self.harness.cleanup)
-        self.harness.begin()
-
-    def create_certificate_transfer_relation(self) -> int:
-        relation_name = "certificates"
-        remote_app_name = "certificate-transfer-provider"
-        relation_id = self.harness.add_relation(
-            relation_name=relation_name,
-            remote_app=remote_app_name,
+    @pytest.fixture(autouse=True)
+    def context(self):
+        self.ctx = Context(
+            charm_type=DummyCertificateTransferRequirerCharm,
+            meta=METADATA,
+            actions=METADATA.get("actions", {}),
         )
-        return relation_id
 
-    @patch(f"{BASE_CHARM_DIR}._on_certificate_available")
+    def test_given_is_leader_when_relation_created_then_version_is_added_to_app_databag(self):
+        relation = Relation(
+            endpoint=ENDPOINT,
+            interface=INTERFACE,
+        )
+        state_in = State(leader=True, relations=[relation])
+
+        state_out = self.ctx.run(self.ctx.on.relation_created(relation), state_in)
+
+        relation_out = state_out.get_relation(relation.id)
+        assert relation_out
+        assert relation_out.local_app_data.get("version", "wrong") == "0"
+
     def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
-        self, mock_certificate_available: MagicMock
+        self,
     ):
-        remote_unit_name = "certificate-transfer-provider/0"
-        relation_id = self.create_certificate_transfer_relation()
-        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         certificate = "whatever certificate"
         ca = "whatever CA certificate"
         chain = ["cert1", "cert2"]
@@ -46,120 +63,131 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
             "certificate": certificate,
             "ca": ca,
             "chain": chain_string,
-            "relation_id": str(relation_id),
         }
-        self.harness.update_relation_data(
-            relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
+        relation = Relation(
+            endpoint=ENDPOINT, interface=INTERFACE, remote_units_data={0: key_values}
         )
+        state_in = State(leader=True, relations=[relation])
 
-        args, _ = mock_certificate_available.call_args
-        certificate_available_event = args[0]
-        assert certificate_available_event.certificate == certificate
-        assert certificate_available_event.ca == ca
-        assert certificate_available_event.chain == chain
-        assert certificate_available_event.relation_id == relation_id
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
 
-    @patch(f"{BASE_CHARM_DIR}._on_certificate_available")
+        last_event = self.ctx.emitted_events[-1]
+        assert isinstance(last_event, CertificateAvailableEvent)
+        assert last_event.certificate == certificate
+        assert last_event.ca == ca
+        assert last_event.chain == chain
+
     def test_given_only_certificate_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
-        self, mock_certificate_available: MagicMock
+        self,
     ):
-        remote_unit_name = "certificate-transfer-provider/0"
-        relation_id = self.create_certificate_transfer_relation()
-        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         certificate = "whatever certificate"
         key_values = {
             "certificate": certificate,
-            "relation_id": str(relation_id),
         }
-        self.harness.update_relation_data(
-            relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
+        relation = Relation(
+            endpoint=ENDPOINT, interface=INTERFACE, remote_units_data={0: key_values}
         )
+        state_in = State(leader=True, relations=[relation])
 
-        args, _ = mock_certificate_available.call_args
-        certificate_available_event = args[0]
-        assert certificate_available_event.certificate == certificate
-        assert certificate_available_event.ca is None
-        assert certificate_available_event.chain is None
-        assert certificate_available_event.relation_id == relation_id
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
+
+        last_event = self.ctx.emitted_events[-1]
+        assert isinstance(last_event, CertificateAvailableEvent)
+        assert last_event.certificate == certificate
 
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_warning_log_is_emitted(
         self,
     ):
-        remote_unit_name = "certificate-transfer-provider/0"
-        relation_id = self.create_certificate_transfer_relation()
-        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         key_values = {
             "banana": "whatever banana content",
             "pizza": "whatever pizza content",
         }
+        relation = Relation(
+            endpoint=ENDPOINT, interface=INTERFACE, remote_units_data={0: key_values}
+        )
+        state_in = State(leader=True, relations=[relation])
 
-        with self.assertLogs(BASE_LIB_DIR, level="WARNING") as log:
-            self.harness.update_relation_data(
-                relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
+
+        assert (
+            JujuLogLine(
+                level="WARNING",
+                message="Provider relation data did not pass JSON Schema validation: {'banana': 'whatever banana content', 'pizza': 'whatever pizza content'}",
             )
-
-        assert "Provider relation data did not pass JSON Schema validation" in log.output[0]
+            in self.ctx.juju_log
+        )
 
     def test_given_provider_uses_application_relation_data_when_relation_changed_then_log_is_emitted(
         self,
     ):
-        relation_id = self.create_certificate_transfer_relation()
         key_values = {"certificate": "whatever cert"}
-        with self.assertLogs(BASE_LIB_DIR, level="INFO") as log:
-            self.harness.update_relation_data(
-                relation_id=relation_id,
-                app_or_unit="certificate-transfer-provider",
-                key_values=key_values,
+        relation = Relation(
+            endpoint=ENDPOINT,
+            interface=INTERFACE,
+            remote_app_data=key_values,
+            remote_units_data={},
+        )
+        state_in = State(leader=True, relations=[relation])
+
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
+
+        assert (
+            JujuLogLine(
+                level="INFO",
+                message=f"No remote unit in relation: {ENDPOINT}",
             )
+            in self.ctx.juju_log
+        )
 
-        assert "No remote unit in relation" in log.output[0]
-
-    @patch(f"{BASE_CHARM_DIR}._on_certificate_removed")
     def test_given_certificate_in_relation_data_when_relation_broken_then_certificate_removed_event_is_emitted(
         self,
-        mock_on_certificate_removed: MagicMock,
     ):
-        remote_unit_name = "certificate-transfer-provider/0"
-        relation_id = self.create_certificate_transfer_relation()
-        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
-        self.harness.remove_relation(relation_id)
+        certificate = "whatever certificate"
+        ca = "whatever CA certificate"
+        chain = ["cert1", "cert2"]
+        chain_string = json.dumps(chain)
+        key_values = {
+            "certificate": certificate,
+            "ca": ca,
+            "chain": chain_string,
+        }
+        relation = Relation(
+            endpoint=ENDPOINT, interface=INTERFACE, remote_units_data={0: key_values}
+        )
+        state_in = State(leader=True, relations=[relation])
 
-        mock_on_certificate_removed.assert_called()
+        self.ctx.run(self.ctx.on.relation_broken(relation), state_in)
+
+        last_event = self.ctx.emitted_events[-1]
+        assert isinstance(last_event, CertificateRemovedEvent)
 
     def test_given_invalid_relation_data_when_is_ready_then_false_is_returned(self):
-        remote_unit_name = "certificate-transfer-provider/0"
-        relation_id = self.create_certificate_transfer_relation()
-        self.harness.add_relation_unit(relation_id=relation_id, remote_unit_name=remote_unit_name)
         key_values = {
             "banana": "whatever banana content",
             "pizza": "whatever pizza content",
         }
-        self.harness.update_relation_data(
-            relation_id=relation_id, app_or_unit=remote_unit_name, key_values=key_values
+        relation = Relation(
+            endpoint=ENDPOINT, interface=INTERFACE, remote_units_data={0: key_values}
         )
-        relation = self.harness.model.get_relation(
-            relation_name="certificates", relation_id=relation_id
+        state_in = State(leader=True, relations=[relation])
+
+        self.ctx.run(
+            self.ctx.on.action("is-ready", params={"relation-id": str(relation.id)}), state_in
         )
-        assert relation
-        assert not self.harness.charm.certificate_transfer.is_ready(relation)
+
+        assert self.ctx.action_results
+        assert not self.ctx.action_results["ready"]
 
     def test_given_valid_relation_data_when_is_ready_then_true_is_returned(self):
-        relation_id = self.create_certificate_transfer_relation()
-        relation = self.harness.model.get_relation(
-            relation_name="certificates", relation_id=relation_id
+        key_values = {"certificate": "whatever cert"}
+        relation = Relation(
+            endpoint=ENDPOINT, interface=INTERFACE, remote_units_data={0: key_values}
         )
-        self.harness.add_relation_unit(
-            relation_id=relation_id, remote_unit_name="certificate-transfer-provider/0"
+        state_in = State(leader=True, relations=[relation])
+
+        self.ctx.run(
+            self.ctx.on.action("is-ready", params={"relation-id": str(relation.id)}), state_in
         )
-        certificate = "whatever certificate"
-        key_values = {
-            "certificate": certificate,
-            "relation_id": str(relation_id),
-        }
-        self.harness.update_relation_data(
-            relation_id=relation_id,
-            app_or_unit="certificate-transfer-provider",
-            key_values=key_values,
-        )
-        assert relation
-        assert self.harness.charm.certificate_transfer.is_ready(relation)
+
+        assert self.ctx.action_results
+        assert self.ctx.action_results["ready"]
