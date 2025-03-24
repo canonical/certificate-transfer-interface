@@ -77,6 +77,25 @@ class TestCertificateTransferRequiresV1:
 
         assert relation.local_app_data["version"] == "1"
 
+    def test_given_is_not_leader_when_relation_created_then_debug_message_is_logged(
+        self,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        relation = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+        )
+        state_in = scenario.State(leader=False, relations=[relation])
+
+        self.ctx.run(self.ctx.on.relation_created(relation), state_in)
+
+        logs = [(record.levelname, record.module, record.message) for record in caplog.records]
+        assert (
+            "DEBUG",
+            "certificate_transfer",
+            "Only leader unit sets the version number in the app databag",
+        ) in logs
+
     def test_given_certificates_in_relation_data_when_relation_changed_then_certificate_available_event_is_emitted(
         self,
     ):
