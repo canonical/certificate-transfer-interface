@@ -21,6 +21,9 @@ class DummyCertificateTransferProviderCharm(CharmBase):
         self.framework.observe(
             self.on.remove_certificate_action, self._on_remove_certificate_action
         )
+        self.framework.observe(
+            self.on.remove_all_certificates_action, self._on_remove_all_certificates_action
+        )
 
     def _on_add_certificates_action(self, event: ActionEvent):
         certificates = event.params.get("certificates")
@@ -37,6 +40,12 @@ class DummyCertificateTransferProviderCharm(CharmBase):
         assert certificate
         self.certificate_transfer.remove_certificate(
             certificate=certificate, relation_id=int(relation_id) if relation_id else None
+        )
+
+    def _on_remove_all_certificates_action(self, event: ActionEvent):
+        relation_id = event.params.get("relation-id", None)
+        self.certificate_transfer.remove_all_certificates(
+            relation_id=int(relation_id) if relation_id else None
         )
 
 
@@ -59,6 +68,11 @@ class TestCertificateTransferProvidesV1:
                 "remove-certificate": {
                     "params": {
                         "certificate": {"type": "string"},
+                        "relation-id": {"type": "string"},
+                    },
+                },
+                "remove-all-certificates": {
+                    "params": {
                         "relation-id": {"type": "string"},
                     },
                 },
@@ -358,6 +372,87 @@ the databags except using the public methods in the provider library and use ver
         }
         relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
         assert set(json.loads(relation_2_app_data["certificates"])) == {"certificate2"}
+        relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
+        assert set(json.loads(relation_3_app_data["certificates"])) == {
+            "certificate1",
+            "certificate2",
+        }
+
+    def test_given_multiple_relations_when_remove_all_certificates_then_certificates_removed_from_all_relations(
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        state_out = self.ctx.run(
+            self.ctx.on.action(
+                "remove-all-certificates",
+            ),
+            state_in,
+        )
+
+        certificates_relation_1 = state_out.get_relation(relation_1.id).local_app_data[
+            "certificates"
+        ]
+        certificates_relation_2 = state_out.get_relation(relation_2.id).local_app_data[
+            "certificates"
+        ]
+        certificates_relation_3 = state_out.get_relation(relation_3.id).local_app_data[
+            "certificates"
+        ]
+        assert set(json.loads(certificates_relation_1)) == set()
+        assert set(json.loads(certificates_relation_2)) == set()
+        assert set(json.loads(certificates_relation_3)) == set()
+
+    def test_given_multiple_relations_when_remove_all_certificates_with_relation_id_then_certificates_removed_from_specific_relation(
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        state_out = self.ctx.run(
+            self.ctx.on.action(
+                "remove-all-certificates",
+                params={"relation-id": str(relation_2.id)},
+            ),
+            state_in,
+        )
+
+        relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
+        assert set(json.loads(relation_1_app_data["certificates"])) == {
+            "certificate1",
+            "certificate2",
+        }
+        relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
+        assert set(json.loads(relation_2_app_data["certificates"])) == set()
         relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
         assert set(json.loads(relation_3_app_data["certificates"])) == {
             "certificate1",
