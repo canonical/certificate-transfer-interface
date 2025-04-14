@@ -33,6 +33,7 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
 
     def _on_is_ready_action(self, event: ActionEvent):
         relation_id = event.params.get("relation-id", None)
+        assert relation_id
         relation = self.model.get_relation(
             relation_name="certificate_transfer", relation_id=int(relation_id)
         )
@@ -73,7 +74,9 @@ class TestCertificateTransferRequiresV1:
         )
         state_in = scenario.State(leader=True, relations=[relation])
 
-        self.ctx.run(self.ctx.on.relation_created(relation), state_in)
+        state_out = self.ctx.run(self.ctx.on.relation_created(relation), state_in)
+
+        relation = state_out.get_relations("certificate_transfer")[0]
 
         assert relation.local_app_data["version"] == "1"
 
