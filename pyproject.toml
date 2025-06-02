@@ -7,7 +7,7 @@ dependencies = [
     "jsonschema",
     "ops",
     "pydantic",
-    "rpds-py==0.24.0"
+    "rpds-py==0.25.1"
 ]
 
 [dependency-groups]
