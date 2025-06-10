@@ -8,21 +8,46 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: "0 0 * * 0"
 
 concurrency:
-    group: ${{ github.ref == 'refs/heads/main' && format('ignore-main-{0}', github.run_id) || format('{0}-{1}', github.workflow, github.ref_name) }}
-    cancel-in-progress: true
+  group: ${{ github.ref == 'refs/heads/main' && format('ignore-main-{0}', github.run_id) || format('{0}-{1}', github.workflow, github.ref_name) }}
+  cancel-in-progress: true
 
 jobs:
   lint-report:
-      uses: canonical/identity-credentials-workflows/.github/workflows/lint-report.yaml@v0
+    uses: canonical/identity-credentials-workflows/.github/workflows/lint-report.yaml@v0
 
   static-analysis:
     uses: canonical/identity-credentials-workflows/.github/workflows/static-analysis.yaml@v0
 
   unit-tests-with-coverage:
-    uses: canonical/identity-credentials-workflows/.github/workflows/unit-test.yaml@v0
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Install uv
+        run: sudo snap install --classic astral-uv
+
+      - name: Install tox
+        run: uv tool install tox --with tox-uv
+
+      - name: Run tests using tox
+        run: tox -e unit
+
+  unit-tests-with-coverage-pydantic-v1:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Install uv
+        run: sudo snap install --classic astral-uv
+
+      - name: Install tox
+        run: uv tool install tox --with tox-uv
+
+      - name: Run tests using tox
+        run: tox -e unit-pydantic-v1
 
   build:
     name: Build charm
