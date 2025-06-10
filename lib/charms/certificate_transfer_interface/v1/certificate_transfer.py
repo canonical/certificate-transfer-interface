@@ -94,6 +94,7 @@ import json
 import logging
 from typing import List, MutableMapping, Optional, Set
 
+import pydantic
 from ops import (
     CharmEvents,
     EventBase,
@@ -106,7 +107,6 @@ from ops import (
 )
 from ops.charm import CharmBase
 from ops.framework import Object
-import pydantic
 
 # The unique Charmhub library identifier, never change it
 LIBID = "3785165b24a743f2b0c60de52db25c8b"
@@ -194,6 +194,7 @@ if int(pydantic.version.VERSION.split(".")[0]) < 2:
             return databag
 
 else:
+
     class DatabagModel(pydantic.BaseModel):
         """Base databag model."""
 
