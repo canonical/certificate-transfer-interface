@@ -91,7 +91,7 @@ class TestCertificateTransferProvidesV1:
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
-            "ERROR",
+            "WARNING",
             "certificate_transfer",
             "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
@@ -117,7 +117,7 @@ class TestCertificateTransferProvidesV1:
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
-            "ERROR",
+            "WARNING",
             "certificate_transfer",
             "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
@@ -260,7 +260,7 @@ the databags except using the public methods in the provider library and use ver
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
-            "ERROR",
+            "WARNING",
             "certificate_transfer",
             "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
@@ -286,7 +286,7 @@ the databags except using the public methods in the provider library and use ver
 
         logs = [(record.levelname, record.module, record.message) for record in caplog.records]
         assert (
-            "ERROR",
+            "WARNING",
             "certificate_transfer",
             "At least 1 matching relation ID not found with the relation name 'certificate_transfer'",
         ) in logs
