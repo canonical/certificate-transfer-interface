@@ -171,13 +171,19 @@ the databags except using the public methods in the provider library and use ver
         self,
     ):
         relation_1 = scenario.Relation(
-            endpoint="certificate_transfer", interface="certificate_transfer"
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
         )
         relation_2 = scenario.Relation(
-            endpoint="certificate_transfer", interface="certificate_transfer"
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
         )
         relation_3 = scenario.Relation(
-            endpoint="certificate_transfer", interface="certificate_transfer"
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "0"},
         )
         state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
 
@@ -202,22 +208,41 @@ the databags except using the public methods in the provider library and use ver
         ]
         assert set(json.loads(certificates_relation_1)) == {"certificate1", "certificate2"}
         assert set(json.loads(certificates_relation_2)) == {"certificate1", "certificate2"}
-        assert set(json.loads(certificates_relation_3)) == {"certificate1", "certificate2"}
+        relation_3_databag = json.loads(certificates_relation_3)
+        assert len(relation_3_databag) == 2
+        assert {
+            "certificate": "certificate1",
+            "ca": "certificate1",
+            "chain": ["certificate1"],
+            "version": 0,
+        } in relation_3_databag
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
         assert state_out.get_relation(relation_1.id).local_app_data["version"] == "1"
         assert state_out.get_relation(relation_2.id).local_app_data["version"] == "1"
-        assert state_out.get_relation(relation_3.id).local_app_data["version"] == "1"
+        assert "version" not in state_out.get_relation(relation_3.id).local_app_data
 
     def test_given_multiple_relations_when_add_certificates_with_relation_id_then_certificate_sent_to_specific_relation(
         self,
     ):
         relation_1 = scenario.Relation(
-            endpoint="certificate_transfer", interface="certificate_transfer"
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
         )
         relation_2 = scenario.Relation(
-            endpoint="certificate_transfer", interface="certificate_transfer"
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
         )
         relation_3 = scenario.Relation(
-            endpoint="certificate_transfer", interface="certificate_transfer"
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "0"},
         )
         state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
 
@@ -233,8 +258,7 @@ the databags except using the public methods in the provider library and use ver
         )
 
         relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
-        assert "certificates" not in relation_1_app_data
-        assert "version" not in relation_1_app_data
+        assert relation_1_app_data == {}
         relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
         assert set(json.loads(relation_2_app_data["certificates"])) == {
             "certificate1",
@@ -242,8 +266,136 @@ the databags except using the public methods in the provider library and use ver
         }
         assert state_out.get_relation(relation_2.id).local_app_data["version"] == "1"
         relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
-        assert "certificates" not in relation_3_app_data
-        assert "version" not in relation_3_app_data
+        assert relation_3_app_data == {}
+
+    def test_given_multiple_relations_when_add_certificates_with_relation_id_v0_then_certificate_sent_to_specific_relation(
+        self, caplog: pytest.LogCaptureFixture
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "0"},
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        state_out = self.ctx.run(
+            self.ctx.on.action(
+                "add-certificates",
+                params={
+                    "certificates": "certificate1, certificate2",
+                    "relation-id": str(relation_3.id),
+                },
+            ),
+            state_in,
+        )
+
+        relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
+        assert relation_1_app_data == {}
+        relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
+        assert relation_2_app_data == {}
+        relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
+        relation_3_databag = json.loads(relation_3_app_data["certificates"])
+        assert len(relation_3_databag) == 2
+        assert {
+            "certificate": "certificate1",
+            "ca": "certificate1",
+            "chain": ["certificate1"],
+            "version": 0,
+        } in relation_3_databag
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
+        logs = [(record.levelname, record.module, record.message) for record in caplog.records]
+        expected_msg = str(
+            (
+                f"Requirer in relation {relation_3.id} is using version 0 of the interface,",
+                "defaulting to version 0.",
+                "This is deprecated, please consider upgrading the requirer",
+                "to version 1 of the library.",
+            )
+        )
+        assert (
+            "WARNING",
+            "certificate_transfer",
+            expected_msg,
+        ) in logs
+
+    def test_given_multiple_relations_when_add_certificates_with_relation_id_no_version_then_certificate_sent_to_specific_relation(
+        self, caplog: pytest.LogCaptureFixture
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        state_out = self.ctx.run(
+            self.ctx.on.action(
+                "add-certificates",
+                params={
+                    "certificates": "certificate1, certificate2",
+                    "relation-id": str(relation_3.id),
+                },
+            ),
+            state_in,
+        )
+
+        relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
+        assert relation_1_app_data == {}
+        relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
+        assert relation_2_app_data == {}
+        relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
+        relation_3_databag = json.loads(relation_3_app_data["certificates"])
+        assert len(relation_3_databag) == 2
+        assert {
+            "certificate": "certificate1",
+            "ca": "certificate1",
+            "chain": ["certificate1"],
+            "version": 0,
+        } in relation_3_databag
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
+        logs = [(record.levelname, record.module, record.message) for record in caplog.records]
+        expected_msg = str(
+            (
+                f"Requirer in relation {relation_3.id} did not provide version field,",
+                "defaulting to version 0.",
+                "This is deprecated, please consider upgrading the requirer",
+                "to version 1 of the library.",
+            )
+        )
+        assert (
+            "WARNING",
+            "certificate_transfer",
+            expected_msg,
+        ) in logs
 
     def test_given_no_relation_when_remove_certificate_then_error_is_logged(
         self, caplog: pytest.LogCaptureFixture
@@ -297,19 +449,63 @@ the databags except using the public methods in the provider library and use ver
         relation_1 = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            remote_app_data={"version": "1"},
             local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
         )
         relation_2 = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            remote_app_data={"version": "1"},
             local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
         )
         relation_3 = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
-            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+            remote_app_data={"version": "0"},
+            local_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "certificate1",
+                            "ca": "certificate1",
+                            "chain": ["certificate1"],
+                            "version": 0,
+                        },
+                        {
+                            "certificate": "certificate2",
+                            "ca": "certificate2",
+                            "chain": ["certificate2"],
+                            "version": 0,
+                        },
+                    ]
+                )
+            },
         )
-        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+        relation_4 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "certificate1",
+                            "ca": "certificate1",
+                            "chain": ["certificate1"],
+                            "version": 0,
+                        },
+                        {
+                            "certificate": "certificate2",
+                            "ca": "certificate2",
+                            "chain": ["certificate2"],
+                            "version": 0,
+                        },
+                    ]
+                )
+            },
+        )
+        state_in = scenario.State(
+            leader=True, relations=[relation_1, relation_2, relation_3, relation_4]
+        )
 
         state_out = self.ctx.run(
             self.ctx.on.action(
@@ -330,9 +526,27 @@ the databags except using the public methods in the provider library and use ver
         certificates_relation_3 = state_out.get_relation(relation_3.id).local_app_data[
             "certificates"
         ]
+        certificates_relation_4 = state_out.get_relation(relation_4.id).local_app_data[
+            "certificates"
+        ]
         assert set(json.loads(certificates_relation_1)) == {"certificate2"}
         assert set(json.loads(certificates_relation_2)) == {"certificate2"}
-        assert set(json.loads(certificates_relation_3)) == {"certificate2"}
+        relation_3_databag = json.loads(certificates_relation_3)
+        assert len(relation_3_databag) == 1
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
+        relation_4_databag = json.loads(certificates_relation_4)
+        assert len(relation_4_databag) == 1
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_4_databag
 
     def test_given_multiple_relations_when_remove_certificate_with_relation_id_then_certificate_removed_from_specific_relation(
         self,
@@ -340,19 +554,63 @@ the databags except using the public methods in the provider library and use ver
         relation_1 = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            remote_app_data={"version": "1"},
             local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
         )
         relation_2 = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            remote_app_data={"version": "1"},
             local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
         )
         relation_3 = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
-            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+            remote_app_data={"version": "0"},
+            local_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "certificate1",
+                            "ca": "certificate1",
+                            "chain": ["certificate1"],
+                            "version": 0,
+                        },
+                        {
+                            "certificate": "certificate2",
+                            "ca": "certificate2",
+                            "chain": ["certificate2"],
+                            "version": 0,
+                        },
+                    ]
+                )
+            },
         )
-        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+        relation_4 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "certificate1",
+                            "ca": "certificate1",
+                            "chain": ["certificate1"],
+                            "version": 0,
+                        },
+                        {
+                            "certificate": "certificate2",
+                            "ca": "certificate2",
+                            "chain": ["certificate2"],
+                            "version": 0,
+                        },
+                    ]
+                )
+            },
+        )
+        state_in = scenario.State(
+            leader=True, relations=[relation_1, relation_2, relation_3, relation_4]
+        )
 
         state_out = self.ctx.run(
             self.ctx.on.action(
@@ -373,10 +631,176 @@ the databags except using the public methods in the provider library and use ver
         relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
         assert set(json.loads(relation_2_app_data["certificates"])) == {"certificate2"}
         relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
-        assert set(json.loads(relation_3_app_data["certificates"])) == {
+        relation_3_databag = json.loads(relation_3_app_data["certificates"])
+        assert len(relation_3_databag) == 2
+        assert {
+            "certificate": "certificate1",
+            "ca": "certificate1",
+            "chain": ["certificate1"],
+            "version": 0,
+        } in relation_3_databag
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
+        relation_4_app_data = state_out.get_relation(relation_4.id).local_app_data
+        relation_4_databag = json.loads(relation_4_app_data["certificates"])
+        assert len(relation_4_databag) == 2
+        assert {
+            "certificate": "certificate1",
+            "ca": "certificate1",
+            "chain": ["certificate1"],
+            "version": 0,
+        } in relation_4_databag
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_4_databag
+
+    def test_given_multiple_relations_when_remove_certificate_with_relation_id_v0_then_certificate_removed_from_specific_relation(
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "0"},
+            local_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "certificate1",
+                            "ca": "certificate1",
+                            "chain": ["certificate1"],
+                            "version": 0,
+                        },
+                        {
+                            "certificate": "certificate2",
+                            "ca": "certificate2",
+                            "chain": ["certificate2"],
+                            "version": 0,
+                        },
+                    ]
+                )
+            },
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        state_out = self.ctx.run(
+            self.ctx.on.action(
+                "remove-certificate",
+                params={
+                    "certificate": "certificate1",
+                    "relation-id": str(relation_3.id),
+                },
+            ),
+            state_in,
+        )
+
+        relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
+        assert set(json.loads(relation_1_app_data["certificates"])) == {
             "certificate1",
             "certificate2",
         }
+        relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
+        assert set(json.loads(relation_2_app_data["certificates"])) == {
+            "certificate1",
+            "certificate2",
+        }
+        relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
+        relation_3_databag = json.loads(relation_3_app_data["certificates"])
+        assert len(relation_3_databag) == 1
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
+
+    def test_given_multiple_relations_when_remove_certificate_with_relation_id_no_version_then_certificate_removed_from_specific_relation(
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={"version": "1"},
+            local_app_data={"certificates": json.dumps(["certificate1", "certificate2"])},
+        )
+        relation_3 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "certificate1",
+                            "ca": "certificate1",
+                            "chain": ["certificate1"],
+                            "version": 0,
+                        },
+                        {
+                            "certificate": "certificate2",
+                            "ca": "certificate2",
+                            "chain": ["certificate2"],
+                            "version": 0,
+                        },
+                    ]
+                )
+            },
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2, relation_3])
+
+        state_out = self.ctx.run(
+            self.ctx.on.action(
+                "remove-certificate",
+                params={
+                    "certificate": "certificate1",
+                    "relation-id": str(relation_3.id),
+                },
+            ),
+            state_in,
+        )
+
+        relation_1_app_data = state_out.get_relation(relation_1.id).local_app_data
+        assert set(json.loads(relation_1_app_data["certificates"])) == {
+            "certificate1",
+            "certificate2",
+        }
+        relation_2_app_data = state_out.get_relation(relation_2.id).local_app_data
+        assert set(json.loads(relation_2_app_data["certificates"])) == {
+            "certificate1",
+            "certificate2",
+        }
+        relation_3_app_data = state_out.get_relation(relation_3.id).local_app_data
+        relation_3_databag = json.loads(relation_3_app_data["certificates"])
+        assert len(relation_3_databag) == 1
+        assert {
+            "certificate": "certificate2",
+            "ca": "certificate2",
+            "chain": ["certificate2"],
+            "version": 0,
+        } in relation_3_databag
 
     def test_given_multiple_relations_when_remove_all_certificates_then_certificates_removed_from_all_relations(
         self,
