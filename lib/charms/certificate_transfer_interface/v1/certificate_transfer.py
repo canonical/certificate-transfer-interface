@@ -4,7 +4,15 @@
 """Library for the certificate_transfer relation.
 
 This library contains the Requires and Provides classes for handling the
-certificate-transfer interface.
+certificate-transfer interface. It supports both v0 and v1 of the interface.
+
+For requirers, they will set version 1 in their application databag as a hint to
+the provider. They will read the databag from the provider first as v1, and fallback
+to v0 if the format does not match.
+
+For providers, they will check the version in the requirer's application databag,
+and send v1 if that version is set to 1, otherwise it will default to 0 for backwards
+compatibility.
 
 ## Getting Started
 From a charm directory, fetch the library using `charmcraft`:
@@ -421,6 +429,28 @@ class CertificateTransferProvides(Object):
             databag = relation.data[self.model.app]
             ProviderApplicationData(certificates=data).dump(databag, True)
         else:
+            if "version" in relation.data.get(relation.app, {}):
+                logger.warning(
+                    (
+                        "Requirer in relation %d is using version %s of the interface,",
+                        "defaulting to version 0.",
+                        "This is deprecated, please consider upgrading the requirer",
+                        "to version 1 of the library.",
+                    ),
+                    relation.id,
+                    relation.data[relation.app]["version"],
+                )
+            else:
+                logger.warning(
+                    (
+                        "Requirer in relation %d did not provide version field,",
+                        "defaulting to version 0.",
+                        "This is deprecated, please consider upgrading the requirer",
+                        "to version 1 of the library.",
+                    ),
+                    relation.id,
+                )
+
             databag = relation.data[self.model.app]
             certificates = [_Certificate(ca=cert, certificate=cert, chain=[cert]) for cert in data]
             ProviderApplicationDataV0(certificates=certificates).dump(databag, True)
