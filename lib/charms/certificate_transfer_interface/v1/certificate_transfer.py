@@ -116,7 +116,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 7
+LIBPATCH = 8
 
 logger = logging.getLogger(__name__)
 
@@ -283,6 +283,24 @@ class ProviderApplicationData(DatabagModel):
     )
 
 
+class _Certificate(pydantic.BaseModel):
+    """Certificate model."""
+
+    ca: str
+    certificate: str
+    chain: Optional[List[str]] = None
+    version: int = pydantic.Field(
+        description="Version of the interface used in this databag",
+        default=0,
+    )
+
+
+class ProviderApplicationDataV0(DatabagModel):
+    """Provider App databag v0 model."""
+
+    certificates: List[_Certificate] = []
+
+
 class RequirerApplicationData(DatabagModel):
     """Requirer App databag model."""
 
@@ -399,8 +417,13 @@ class CertificateTransferProvides(Object):
 
     def _set_relation_data(self, relation: Relation, data: Set[str]) -> None:
         """Set the given relation data."""
-        databag = relation.data[self.model.app]
-        ProviderApplicationData(certificates=data).dump(databag, False)
+        if relation.data.get(relation.app, {}).get("version", "0") == "1":
+            databag = relation.data[self.model.app]
+            ProviderApplicationData(certificates=data).dump(databag, True)
+        else:
+            databag = relation.data[self.model.app]
+            certificates = [_Certificate(ca=cert, certificate=cert, chain=[cert]) for cert in data]
+            ProviderApplicationDataV0(certificates=certificates).dump(databag, True)
 
     def _get_relation_data(self, relation: Relation) -> Set[str]:
         """Get the given relation data."""
@@ -408,6 +431,10 @@ class CertificateTransferProvides(Object):
         try:
             return ProviderApplicationData().load(databag).certificates
         except DataValidationError as e:
+            try:
+                return {cert.ca for cert in ProviderApplicationDataV0().load(databag).certificates}
+            except DataValidationError:
+                pass
             logger.error(
                 (
                     "Error parsing relation databag: %s. ",
@@ -570,6 +597,10 @@ class CertificateTransferRequires(Object):
         try:
             return ProviderApplicationData().load(databag).certificates
         except DataValidationError as e:
+            try:
+                return {cert.ca for cert in ProviderApplicationDataV0().load(databag).certificates}
+            except DataValidationError:
+                pass
             logger.error(
                 (
                     "Error parsing relation databag: %s. ",

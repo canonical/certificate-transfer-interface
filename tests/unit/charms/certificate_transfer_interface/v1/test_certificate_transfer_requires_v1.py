@@ -116,6 +116,34 @@ class TestCertificateTransferRequiresV1:
         assert self.ctx.emitted_events[1].certificates == {"cert1"}
         assert self.ctx.emitted_events[1].relation_id == relation.id
 
+    def test_given_certificates_in_relation_data_in_v0_when_relation_changed_then_certificate_available_event_is_emitted(
+        self,
+    ):
+        relation = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            remote_app_data={
+                "certificates": json.dumps(
+                    [
+                        {
+                            "certificate": "cert1",
+                            "ca": "cert1",
+                            "chain": ["cert1"],
+                            "version": 0,
+                        }
+                    ]
+                )
+            },
+        )
+        state_in = scenario.State(relations=[relation])
+
+        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
+
+        assert len(self.ctx.emitted_events) == 2
+        assert isinstance(self.ctx.emitted_events[1], CertificatesAvailableEvent)
+        assert self.ctx.emitted_events[1].certificates == {"cert1"}
+        assert self.ctx.emitted_events[1].relation_id == relation.id
+
     def test_given_none_of_the_expected_keys_in_relation_data_when_relation_changed_then_certificate_available_event_emitted_with_empty_cert(
         self,
     ):
