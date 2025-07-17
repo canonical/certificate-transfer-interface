@@ -408,7 +408,6 @@ class CertificateTransferProvides(Object):
 
         for relation in relations:
             existing_data = self._get_relation_data(relation)
-            logger.error(existing_data)
             existing_data.discard(certificate)
             self._set_relation_data(relation, existing_data)
 
