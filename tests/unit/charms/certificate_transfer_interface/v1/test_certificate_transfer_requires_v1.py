@@ -4,9 +4,9 @@
 import json
 from typing import Any
 
+import ops
 import pytest
 import scenario
-from ops.charm import ActionEvent, CharmBase
 
 from lib.charms.certificate_transfer_interface.v1.certificate_transfer import (
     CertificatesAvailableEvent,
@@ -15,7 +15,7 @@ from lib.charms.certificate_transfer_interface.v1.certificate_transfer import (
 )
 
 
-class DummyCertificateTransferRequirerCharm(CharmBase):
+class DummyCertificateTransferRequirerCharm(ops.CharmBase):
     def __init__(self, *args: Any):
         super().__init__(*args)
         self.certificate_transfer = CertificateTransferRequires(self, "certificate_transfer")
@@ -23,15 +23,16 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
             self.on.get_all_certificates_action, self._on_get_all_certificates_action
         )
         self.framework.observe(self.on.is_ready_action, self._on_is_ready_action)
+        self.framework.observe(self.on.update_status, self._on_update_status)
 
-    def _on_get_all_certificates_action(self, event: ActionEvent):
+    def _on_get_all_certificates_action(self, event: ops.ActionEvent):
         relation_id = event.params.get("relation-id", None)
         certificates = self.certificate_transfer.get_all_certificates(
             relation_id=int(relation_id) if relation_id else None
         )
         event.set_results({"certificates": certificates})
 
-    def _on_is_ready_action(self, event: ActionEvent):
+    def _on_is_ready_action(self, event: ops.ActionEvent):
         relation_id = event.params.get("relation-id", None)
         assert relation_id
         relation = self.model.get_relation(
@@ -40,6 +41,12 @@ class DummyCertificateTransferRequirerCharm(CharmBase):
         assert relation
         is_ready = self.certificate_transfer.is_ready(relation)
         event.set_results({"is-ready": is_ready})
+
+    def _on_update_status(self, _):
+        if self.certificate_transfer.get_all_certificates():
+            self.unit.status = ops.ActiveStatus()
+        else:
+            self.unit.status = ops.WaitingStatus()
 
 
 class TestCertificateTransferRequiresV1:
@@ -118,6 +125,21 @@ class TestCertificateTransferRequiresV1:
         assert isinstance(self.ctx.emitted_events[1], CertificatesAvailableEvent)
         assert self.ctx.emitted_events[1].certificates == {"cert1"}
         assert self.ctx.emitted_events[1].relation_id == relation.id
+
+    def test_given_relation_created_with_no_remote_units_when_update_status_then_no_crash(
+        self,
+    ):
+        relation = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"version": "1"},
+            remote_units_data={},
+        )
+        state_in = scenario.State(relations=[relation])
+
+        state_out = self.ctx.run(self.ctx.on.update_status(), state_in)
+
+        assert state_out.unit_status == scenario.WaitingStatus()
 
     def test_given_certificates_in_relation_data_in_v0_when_relation_changed_then_certificate_available_event_is_emitted(
         self,
