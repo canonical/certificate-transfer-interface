@@ -71,6 +71,7 @@ class TestCertificateTransferRequiresV1:
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
         )
         state_in = scenario.State(leader=True, relations=[relation])
 
@@ -87,6 +88,7 @@ class TestCertificateTransferRequiresV1:
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
         )
         state_in = scenario.State(leader=False, relations=[relation])
 
@@ -105,6 +107,7 @@ class TestCertificateTransferRequiresV1:
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
             remote_app_data={"certificates": json.dumps(["cert1"])},
         )
         state_in = scenario.State(relations=[relation])
@@ -122,17 +125,20 @@ class TestCertificateTransferRequiresV1:
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
-            remote_app_data={
-                "certificates": json.dumps(
-                    [
-                        {
-                            "certificate": "cert1",
-                            "ca": "cert1",
-                            "chain": ["cert1"],
-                            "version": 0,
-                        }
-                    ]
-                )
+            local_app_data={"version": "1"},
+            remote_units_data={
+                0: {
+                    "certificates": json.dumps(
+                        [
+                            {
+                                "certificate": "cert1",
+                                "ca": "cert1",
+                                "chain": ["cert1"],
+                                "version": 0,
+                            }
+                        ]
+                    )
+                }
             },
         )
         state_in = scenario.State(relations=[relation])
@@ -150,6 +156,7 @@ class TestCertificateTransferRequiresV1:
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
             remote_app_data={"bad-key": json.dumps(["cert1"])},
         )
         state_in = scenario.State(relations=[relation])
@@ -167,6 +174,7 @@ class TestCertificateTransferRequiresV1:
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
             remote_app_data={"certificates": json.dumps(["cert1"])},
         )
         state_in = scenario.State(relations=[relation])
@@ -210,6 +218,7 @@ the databags except using the public methods in the provider library and use ver
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
             remote_app_data={"certificates": databag_value},
         )
         state_in = scenario.State(leader=True, relations=[relation])
@@ -227,6 +236,7 @@ the databags except using the public methods in the provider library and use ver
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
             remote_app_data={"certificates": "some string"},
         )
         state_in = scenario.State(leader=True, relations=[relation])
@@ -242,6 +252,7 @@ the databags except using the public methods in the provider library and use ver
         relation = scenario.Relation(
             endpoint="certificate_transfer",
             interface="certificate_transfer",
+            local_app_data={"version": "1"},
             remote_app_data={"certificates": json.dumps(["cert1"])},
         )
         state_in = scenario.State(leader=True, relations=[relation])
