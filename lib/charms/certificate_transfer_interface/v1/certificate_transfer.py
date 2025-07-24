@@ -124,7 +124,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 10
+LIBPATCH = 11
 
 logger = logging.getLogger(__name__)
 
@@ -412,7 +412,7 @@ class CertificateTransferProvides(Object):
             self._set_relation_data(relation, existing_data)
 
     def _get_relevant_relations(self, relation_id: Optional[int] = None) -> List[Relation]:
-        """Get the relevant relation if relation_id is given, all relations otherwise."""
+        """Get the relevant relation if relation_id is given and relation is active, all active relations otherwise."""
         if relation_id is not None:
             relation = self.model.get_relation(
                 relation_name=self.relationship_name, relation_id=relation_id
@@ -421,7 +421,11 @@ class CertificateTransferProvides(Object):
                 return [relation]
             return []
 
-        return list(self.model.relations[self.relationship_name])
+        return [
+            relation
+            for relation in self.model.relations[self.relationship_name]
+            if relation.active
+        ]
 
     def _set_relation_data(self, relation: Relation, data: Set[str]) -> None:
         """Set the given relation data."""
@@ -643,10 +647,14 @@ class CertificateTransferRequires(Object):
             return set()
 
     def _get_relevant_relations(self, relation_id: Optional[int] = None) -> List[Relation]:
-        """Get the relevant relation if relation_id is given, all relations otherwise."""
+        """Get the relevant relation if relation_id is given and relation is active, all active relations otherwise."""
         if relation_id is not None:
             if relation := self.model.get_relation(
                 relation_name=self.relationship_name, relation_id=relation_id
             ):
                 return [relation]
-        return list(self.model.relations[self.relationship_name])
+        return [
+            relation
+            for relation in self.model.relations[self.relationship_name]
+            if relation.active
+        ]
