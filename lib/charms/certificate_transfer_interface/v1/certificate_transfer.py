@@ -341,7 +341,7 @@ class CertificateTransferProvides(Object):
         if not self.charm.unit.is_leader():
             logger.warning("Only the leader unit can add certificates to this relation")
             return
-        relations = self._get_relevant_relations(relation_id)
+        relations = self._get_active_relations(relation_id)
         if not relations:
             logger.warning(
                 "At least 1 matching relation ID not found with the relation name '%s'",
@@ -368,7 +368,7 @@ class CertificateTransferProvides(Object):
         if not self.charm.unit.is_leader():
             logger.warning("Only the leader unit can add certificates to this relation")
             return
-        relations = self._get_relevant_relations(relation_id)
+        relations = self._get_active_relations(relation_id)
         if not relations:
             logger.warning(
                 "At least 1 matching relation ID not found with the relation name '%s'",
@@ -398,7 +398,7 @@ class CertificateTransferProvides(Object):
         if not self.charm.unit.is_leader():
             logger.warning("Only the leader unit can add certificates to this relation")
             return
-        relations = self._get_relevant_relations(relation_id)
+        relations = self._get_active_relations(relation_id)
         if not relations:
             logger.warning(
                 "At least 1 matching relation ID not found with the relation name '%s'",
@@ -411,8 +411,8 @@ class CertificateTransferProvides(Object):
             existing_data.discard(certificate)
             self._set_relation_data(relation, existing_data)
 
-    def _get_relevant_relations(self, relation_id: Optional[int] = None) -> List[Relation]:
-        """Get the relevant relation if relation_id is given and relation is active, all active relations otherwise."""
+    def _get_active_relations(self, relation_id: Optional[int] = None) -> List[Relation]:
+        """Get the relation if relation_id is given and the relation is active, all active relations otherwise."""
         if relation_id is not None:
             relation = self.model.get_relation(
                 relation_name=self.relationship_name, relation_id=relation_id
@@ -609,7 +609,7 @@ class CertificateTransferRequires(Object):
         Args:
             relation_id: The id of the relation to get the certificates from.
         """
-        relations = self._get_relevant_relations(relation_id)
+        relations = self._get_active_relations(relation_id)
         result = set()
         for relation in relations:
             data = self._get_relation_data(relation)
@@ -646,8 +646,8 @@ class CertificateTransferRequires(Object):
             )
             return set()
 
-    def _get_relevant_relations(self, relation_id: Optional[int] = None) -> List[Relation]:
-        """Get the relevant relation if relation_id is given and relation is active, all active relations otherwise."""
+    def _get_active_relations(self, relation_id: Optional[int] = None) -> List[Relation]:
+        """Get the active relation if relation_id is given, all active relations otherwise."""
         if relation_id is not None:
             if relation := self.model.get_relation(
                 relation_name=self.relationship_name, relation_id=relation_id
