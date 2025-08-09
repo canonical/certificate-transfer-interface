@@ -150,16 +150,10 @@ class TestCertificateTransferRequiresV1:
             local_app_data={"version": "1"},
             remote_units_data={
                 0: {
-                    "certificates": json.dumps(
-                        [
-                            {
-                                "certificate": "cert1",
-                                "ca": "cert1",
-                                "chain": ["cert1"],
-                                "version": 0,
-                            }
-                        ]
-                    )
+                    "certificate": json.dumps("cert1"),
+                    "ca": json.dumps("cert1"),
+                    "chain": json.dumps(["cert1"]),
+                    "version": json.dumps(0),
                 }
             },
         )
