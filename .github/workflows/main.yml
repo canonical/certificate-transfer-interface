@@ -24,7 +24,7 @@ jobs:
   unit-tests-with-coverage:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Install uv
         run: sudo snap install --classic astral-uv
@@ -38,7 +38,7 @@ jobs:
   unit-tests-with-coverage-pydantic-v1:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Install uv
         run: sudo snap install --classic astral-uv
@@ -58,7 +58,7 @@ jobs:
       - static-analysis
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup LXD
         uses: canonical/setup-lxd@main
         with:
@@ -85,7 +85,7 @@ jobs:
     if: ${{ github.ref_name == 'main' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup LXD
         uses: canonical/setup-lxd@main
