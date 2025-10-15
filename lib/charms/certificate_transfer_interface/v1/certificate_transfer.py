@@ -124,7 +124,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 12
+LIBPATCH = 13
 
 logger = logging.getLogger(__name__)
 
@@ -337,10 +337,16 @@ class CertificateTransferProvides(Object):
             return
         relations = self._get_active_relations(relation_id)
         if not relations:
-            logger.warning(
-                "At least 1 matching relation ID not found with the relation name '%s'",
-                self.relationship_name,
-            )
+            if relation_id is not None:
+                logger.warning(
+                    "At least 1 matching relation ID not found with the relation name '%s'",
+                    self.relationship_name,
+                )
+            else:
+                logger.debug(
+                    "No active relations found with the relation name '%s'",
+                    self.relationship_name,
+                )
             return
 
         for relation in relations:
@@ -364,10 +370,16 @@ class CertificateTransferProvides(Object):
             return
         relations = self._get_active_relations(relation_id)
         if not relations:
-            logger.warning(
-                "At least 1 matching relation ID not found with the relation name '%s'",
-                self.relationship_name,
-            )
+            if relation_id is not None:
+                logger.warning(
+                    "At least 1 matching relation ID not found with the relation name '%s'",
+                    self.relationship_name,
+                )
+            else:
+                logger.debug(
+                    "No active relations found with the relation name '%s'",
+                    self.relationship_name,
+                )
             return
 
         for relation in relations:
@@ -394,10 +406,16 @@ class CertificateTransferProvides(Object):
             return
         relations = self._get_active_relations(relation_id)
         if not relations:
-            logger.warning(
-                "At least 1 matching relation ID not found with the relation name '%s'",
-                self.relationship_name,
-            )
+            if relation_id is not None:
+                logger.warning(
+                    "At least 1 matching relation ID not found with the relation name '%s'",
+                    self.relationship_name,
+                )
+            else:
+                logger.debug(
+                    "No active relations found with the relation name '%s'",
+                    self.relationship_name,
+                )
             return
 
         for relation in relations:
