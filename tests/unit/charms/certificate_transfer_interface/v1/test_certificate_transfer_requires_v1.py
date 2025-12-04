@@ -279,3 +279,58 @@ the databags except using the public methods in the provider library and use ver
         )
         assert self.ctx.action_results
         assert self.ctx.action_results["is-ready"]
+
+    def test_given_certificates_in_relation_data_when_get_all_certificates_by_relation_then_sorted_list_returned(
+        self,
+    ):
+        relation = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"version": "1"},
+            remote_app_data={"certificates": json.dumps(["cert_z", "cert_a", "cert_m"])},
+        )
+        state_in = scenario.State(leader=True, relations=[relation])
+
+        with self.ctx(self.ctx.on.update_status(), state_in) as manager:
+            charm = manager.charm
+            result = charm.certificate_transfer.get_all_certificates_by_relation()
+
+        assert relation.id in result
+        assert result[relation.id] == ["cert_a", "cert_m", "cert_z"]
+
+    def test_given_multiple_relations_when_get_all_certificates_by_relation_then_all_relations_returned(
+        self,
+    ):
+        relation_1 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"version": "1"},
+            remote_app_data={"certificates": json.dumps(["cert_b", "cert_a"])},
+        )
+        relation_2 = scenario.Relation(
+            endpoint="certificate_transfer",
+            interface="certificate_transfer",
+            local_app_data={"version": "1"},
+            remote_app_data={"certificates": json.dumps(["cert_y", "cert_x"])},
+        )
+        state_in = scenario.State(leader=True, relations=[relation_1, relation_2])
+
+        with self.ctx(self.ctx.on.update_status(), state_in) as manager:
+            charm = manager.charm
+            result = charm.certificate_transfer.get_all_certificates_by_relation()
+
+        assert relation_1.id in result
+        assert relation_2.id in result
+        assert result[relation_1.id] == ["cert_a", "cert_b"]
+        assert result[relation_2.id] == ["cert_x", "cert_y"]
+
+    def test_given_no_relation_when_get_all_certificates_by_relation_then_empty_dict_returned(
+        self,
+    ):
+        state_in = scenario.State()
+
+        with self.ctx(self.ctx.on.update_status(), state_in) as manager:
+            charm = manager.charm
+            result = charm.certificate_transfer.get_all_certificates_by_relation()
+
+        assert result == {}
