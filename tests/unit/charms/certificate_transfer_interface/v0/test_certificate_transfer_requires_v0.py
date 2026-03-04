@@ -125,16 +125,16 @@ class TestCertificateTransferRequiresV0(unittest.TestCase):
             endpoint=ENDPOINT,
             interface=INTERFACE,
             remote_app_data=key_values,
-            remote_units_data={},
+            remote_units_data={0: {}},
         )
         state_in = State(leader=True, relations=[relation])
 
-        self.ctx.run(self.ctx.on.relation_changed(relation), state_in)
+        self.ctx.run(self.ctx.on.relation_changed(relation, remote_unit=0), state_in)
 
         assert (
             JujuLogLine(
-                level="INFO",
-                message=f"No remote unit in relation: {ENDPOINT}",
+                level="WARNING",
+                message="Provider relation data did not pass JSON Schema validation: {}",
             )
             in self.ctx.juju_log
         )
