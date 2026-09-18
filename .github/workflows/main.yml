@@ -22,7 +22,7 @@ jobs:
     uses: canonical/identity-credentials-workflows/.github/workflows/static-analysis.yaml@v3.1.5
 
   unit-tests-with-coverage:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -36,7 +36,7 @@ jobs:
         run: tox -e unit
 
   unit-tests-with-coverage-pydantic-v1:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -51,7 +51,7 @@ jobs:
 
   build:
     name: Build charm
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - unit-tests-with-coverage
       - lint-report
@@ -76,7 +76,7 @@ jobs:
 
   charmhub-upload:
     name: Charmub upload lib
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - lint-report
       - static-analysis
